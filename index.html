@@ -7,8 +7,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Card Vault</title>
 <style>
-:root{
-  /* 极简黑白灰 Ins 风暗色模式 */
+:root {
+  /* 黑白极简暗色 */
   --bg-base: #0a0a0c;
   --bg-gradient: radial-gradient(circle at 0% 0%, #2a2a35 0%, #0a0a0c 50%),
                  radial-gradient(circle at 100% 100%, #1a1a24 0%, transparent 50%);
@@ -20,19 +20,13 @@
   --text-muted: #636366;
   --accent: #ffffff;
   --danger: #ff453a;
-  --blur: blur(24px) saturate(180%);
-  --radius: 24px;
-  --safe-bottom: env(safe-area-inset-bottom, 20px);
-  
-  /* 转盘专属颜色 */
-  --wheel-1: rgba(255,255,255,0.15);
-  --wheel-2: rgba(255,255,255,0.05);
-  --wheel-3: rgba(255,255,255,0.1);
-  --wheel-4: rgba(255,255,255,0.02);
+  --group-bg: rgba(255, 255, 255, 0.1);
+  --group-text: #ffffff;
+  --wheel-1: rgba(255,255,255,0.15); --wheel-2: rgba(255,255,255,0.05); --wheel-3: rgba(255,255,255,0.1); --wheel-4: rgba(255,255,255,0.02);
   --wheel-text: #fff;
 }
-[data-theme="light"]{
-  /* 极简黑白灰 Ins 风浅色模式 */
+[data-theme="light"] {
+  /* 纯白通透 */
   --bg-base: #f2f2f7;
   --bg-gradient: radial-gradient(circle at 0% 0%, #ffffff 0%, #f2f2f7 50%),
                  radial-gradient(circle at 100% 100%, #e5e5ea 0%, transparent 50%);
@@ -44,13 +38,70 @@
   --text-muted: #c7c7cc;
   --accent: #000000;
   --danger: #ff3b30;
-  
-  /* 转盘专属颜色 */
-  --wheel-1: rgba(0,0,0,0.15);
-  --wheel-2: rgba(0,0,0,0.05);
-  --wheel-3: rgba(0,0,0,0.1);
-  --wheel-4: rgba(0,0,0,0.02);
+  --group-bg: rgba(0, 122, 255, 0.1);
+  --group-text: #007aff;
+  --wheel-1: rgba(0,0,0,0.15); --wheel-2: rgba(0,0,0,0.05); --wheel-3: rgba(0,0,0,0.1); --wheel-4: rgba(0,0,0,0.02);
   --wheel-text: #1c1c1e;
+}
+[data-theme="morandi"] {
+  /* 莫兰迪灰绿 */
+  --bg-base: #e3e8e4;
+  --bg-gradient: radial-gradient(circle at 0% 0%, #f0f4f1 0%, #e3e8e4 50%),
+                 radial-gradient(circle at 100% 100%, #d0d9d3 0%, transparent 50%);
+  --glass-bg: rgba(227, 232, 228, 0.65);
+  --glass-border: rgba(100, 120, 110, 0.15);
+  --glass-highlight: rgba(100, 120, 110, 0.05);
+  --text-main: #2d3a33;
+  --text-sub: #6b7c72;
+  --text-muted: #a3b3a9;
+  --accent: #2d3a33;
+  --danger: #d16a6a;
+  --group-bg: rgba(100, 120, 110, 0.15);
+  --group-text: #3a4a41;
+  --wheel-1: rgba(100,120,110,0.15); --wheel-2: rgba(100,120,110,0.05); --wheel-3: rgba(100,120,110,0.1); --wheel-4: rgba(100,120,110,0.02);
+  --wheel-text: #2d3a33;
+}
+[data-theme="pink"] {
+  /* 奶油藕粉 */
+  --bg-base: #f6ebeb;
+  --bg-gradient: radial-gradient(circle at 0% 0%, #fcf5f5 0%, #f6ebeb 50%),
+                 radial-gradient(circle at 100% 100%, #ebdada 0%, transparent 50%);
+  --glass-bg: rgba(246, 235, 235, 0.65);
+  --glass-border: rgba(180, 140, 140, 0.15);
+  --glass-highlight: rgba(180, 140, 140, 0.05);
+  --text-main: #4a3535;
+  --text-sub: #8c7070;
+  --text-muted: #c4a7a7;
+  --accent: #4a3535;
+  --danger: #d16a6a;
+  --group-bg: rgba(180, 140, 140, 0.2);
+  --group-text: #8c4040;
+  --wheel-1: rgba(180,140,140,0.15); --wheel-2: rgba(180,140,140,0.05); --wheel-3: rgba(180,140,140,0.1); --wheel-4: rgba(180,140,140,0.02);
+  --wheel-text: #4a3535;
+}
+[data-theme="blue"] {
+  /* 静谧夜空蓝 */
+  --bg-base: #0d1b2a;
+  --bg-gradient: radial-gradient(circle at 0% 0%, #1b263b 0%, #0d1b2a 50%),
+                 radial-gradient(circle at 100% 100%, #22334a 0%, transparent 50%);
+  --glass-bg: rgba(27, 38, 59, 0.45);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-highlight: rgba(255, 255, 255, 0.04);
+  --text-main: #e0e1dd;
+  --text-sub: #9a9fa8;
+  --text-muted: #5f6774;
+  --accent: #e0e1dd;
+  --danger: #ff6b6b;
+  --group-bg: rgba(255, 255, 255, 0.12);
+  --group-text: #e0e1dd;
+  --wheel-1: rgba(255,255,255,0.12); --wheel-2: rgba(255,255,255,0.04); --wheel-3: rgba(255,255,255,0.08); --wheel-4: rgba(255,255,255,0.02);
+  --wheel-text: #e0e1dd;
+}
+
+:root {
+  --blur: blur(24px) saturate(180%);
+  --radius: 24px;
+  --safe-bottom: env(safe-area-inset-bottom, 20px);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -105,7 +156,7 @@ main {
   background: var(--glass-bg);
   backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
   border-top: 1px solid var(--glass-border);
-  box-shadow: 0 -10px 40px rgba(0,0,0,0.1);
+  box-shadow: 0 -10px 40px rgba(0,0,0,0.05);
 }
 .nav-item {
   display: flex; flex-direction: column; align-items: center; gap: 4px;
@@ -121,7 +172,7 @@ main {
   backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.08);
 }
 
 .toolbar { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
@@ -148,7 +199,7 @@ main {
 .action-btn.primary { background: var(--text-main); color: var(--bg-base); border: none; }
 .action-btn:active { transform: scale(0.96); }
 
-/* 角色卡列表 */
+/* 角色卡 */
 .cards-list { display: flex; flex-direction: column; gap: 12px; }
 .card {
   background: var(--glass-bg); backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
@@ -166,21 +217,24 @@ main {
 .card-info { flex: 1; min-width: 0; }
 .card-title { font-size: 16px; font-weight: 600; margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-/* 分组和标签区分 */
-.card-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; font-size: 11px; color: var(--text-sub); }
+/* 分组和标签区分及滑动 */
+.card-meta { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text-sub); overflow: hidden; width: 100%; }
 .meta-group { 
-  display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 6px;
-  border: 1px solid var(--glass-border); color: var(--text-main); background: transparent;
+  display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 6px;
+  background: var(--group-bg); color: var(--group-text); font-weight: 500;
+  flex-shrink: 0;
 }
-.meta-group::before { content: "📁"; font-size: 10px; }
-.meta-tags { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; }
+.meta-tags { 
+  display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; 
+  flex: 1; padding-bottom: 2px; 
+}
+.meta-tags::-webkit-scrollbar { display: none; }
 .meta-tag { 
-  background: var(--glass-highlight); padding: 2px 6px; border-radius: 4px; 
+  background: var(--glass-highlight); padding: 2px 6px; border-radius: 4px; white-space: nowrap;
 }
 .meta-tag::before { content: "#"; opacity: 0.5; margin-right: 1px; }
-.meta-divider { width: 1px; height: 10px; background: var(--glass-border); }
 
-.arrow { color: var(--text-muted); transition: 0.3s; font-size: 12px; }
+.arrow { color: var(--text-muted); transition: 0.3s; font-size: 12px; flex-shrink: 0; }
 .card.open .arrow { transform: rotate(180deg); }
 
 .card-body { display: none; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--glass-border); }
@@ -198,11 +252,25 @@ textarea.note-input {
   color: var(--text-main); cursor: pointer;
 }
 
-/* 修复后的 JSONL 区块 */
-.jsonl-block { margin-top: 12px; padding: 12px; border-radius: 12px; background: var(--glass-highlight); border: 1px solid var(--glass-border); }
-.jsonl-header { display: flex; justify-content: space-between; align-items: center; font-size: 13px; margin-bottom: 10px; font-weight: 500; word-break: break-all; }
+/* 美化后的 JSONL 区块 */
+.jsonl-block { margin-top: 12px; padding: 12px; border-radius: 12px; background: rgba(128,128,128,0.05); }
+.jsonl-header { display: flex; justify-content: space-between; align-items: center; font-size: 13px; margin-bottom: 8px; font-weight: 500; word-break: break-all; }
 .jsonl-header span { flex: 1; margin-right: 10px; }
-.jsonl-header button { border: none; background: none; color: var(--danger); font-size: 12px; white-space: nowrap; padding: 4px; }
+.jsonl-header button { border: none; background: none; color: var(--text-sub); font-size: 12px; white-space: nowrap; padding: 4px; }
+.jsonl-header button.del-jl { color: var(--danger); }
+
+.jsonl-note-wrap { position: relative; }
+.jsonl-note-wrap::before {
+  content: "✎"; position: absolute; left: 12px; top: 9px; 
+  color: var(--text-sub); font-size: 12px; pointer-events: none; opacity: 0.7;
+}
+.jsonl-note-wrap textarea {
+  width: 100%; min-height: 36px; padding: 8px 12px 8px 30px; 
+  background: rgba(128,128,128,0.05); border: none; border-radius: 8px;
+  color: var(--text-main); font-size: 12px; font-family: inherit; resize: none;
+  outline: none; transition: 0.2s;
+}
+.jsonl-note-wrap textarea:focus { background: rgba(128,128,128,0.1); }
 
 /* 转盘页面 */
 .wheel-container { display: flex; flex-direction: column; align-items: center; gap: 20px; }
@@ -424,8 +492,13 @@ function compressImg(f) { return new Promise((res, rej) => {
 });}
 
 // ---------- Theme & FX ----------
+const themes = ['dark', 'light', 'morandi', 'pink', 'blue'];
 function applyTheme() { document.documentElement.dataset.theme = state.theme; drawWheel(); }
-$('#themeBtn').onclick = () => { state.theme = state.theme === 'dark' ? 'light' : 'dark'; applyTheme(); save(); };
+$('#themeBtn').onclick = () => { 
+  const idx = themes.indexOf(state.theme); 
+  state.theme = themes[(idx + 1) % themes.length]; 
+  applyTheme(); save(); 
+};
 
 let audioCtx = null;
 function beep(freq=880, dur=0.08, type='sine') {
@@ -439,7 +512,7 @@ function beep(freq=880, dur=0.08, type='sine') {
 }
 function winSound() { beep(660,0.1); setTimeout(()=>beep(880,0.12),100); setTimeout(()=>beep(1100,0.2),220); }
 
-// 修复后的特效系统
+// 特效系统（调整了雨的参数）
 const fx = {
   canvas: null, ctx: null, particles: [], type: 'none',
   init() { this.canvas = $('#fxCanvas'); this.ctx = this.canvas.getContext('2d'); 
@@ -457,7 +530,8 @@ const fx = {
   spawn(randomY=false) { const w = innerWidth, h = innerHeight;
     const y = randomY ? Math.random()*h : -20;
     if(this.type==='snow') return {x:Math.random()*w, y:y, r:Math.random()*2+1, vy:Math.random()*0.5+0.3, vx:(Math.random()-0.5)*0.2, a:Math.random()*0.5+0.3, p:Math.random()*Math.PI*2};
-    if(this.type==='rain') return {x:Math.random()*w, y:y, l:Math.random()*15+8, vy:Math.random()*8+8, a:Math.random()*0.2+0.1};
+    // 雨滴变短，速度变慢
+    if(this.type==='rain') return {x:Math.random()*w, y:y, l:Math.random()*10+5, vy:Math.random()*3+3, a:Math.random()*0.2+0.1};
     return {x:Math.random()*w, y:y, r:Math.random()*4+3, vy:Math.random()*0.8+0.3, vx:(Math.random()-0.5)*0.6, rot:Math.random()*Math.PI*2, vr:(Math.random()-0.5)*0.05, a:Math.random()*0.5+0.3, hue:Math.random()*40+330};
   },
   loop() { 
@@ -472,7 +546,7 @@ const fx = {
         }
         else if(this.type === 'rain') { 
           p.y+=p.vy; p.x+=1; if(p.y>h+10){ this.particles[idx]=this.spawn(); } 
-          ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(p.x-1,p.y+p.l); ctx.strokeStyle=`rgba(200,220,255,${p.a})`; ctx.lineWidth=1; ctx.stroke(); 
+          ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(p.x-1,p.y+p.l); ctx.strokeStyle=`rgba(180,200,255,${p.a})`; ctx.lineWidth=1; ctx.stroke(); 
         }
         else { 
           p.y+=p.vy; p.x+=Math.sin(p.y*0.01)*0.5+p.vx; p.rot+=p.vr; 
@@ -523,7 +597,6 @@ function renderCard(card) {
   
   let groupHtml = card.group ? `<span class="meta-group">${esc(card.group)}</span>` : '';
   let tagsHtml = (card.tags||[]).length ? `<div class="meta-tags">${(card.tags||[]).map(t=>`<span class="meta-tag">${esc(t)}</span>`).join('')}</div>` : '';
-  let divider = (card.group && (card.tags||[]).length) ? `<div class="meta-divider"></div>` : '';
   let jlCount = `<span>${card.jsonls.length} 个文件</span>`;
 
   el.innerHTML = `
@@ -532,7 +605,7 @@ function renderCard(card) {
       <div class="card-info">
         <div class="card-title">${esc(card.name)}</div>
         <div class="card-meta">
-          ${groupHtml}${divider}${tagsHtml}
+          ${groupHtml}${tagsHtml}
           ${(!card.group && !(card.tags||[]).length) ? jlCount : ''}
         </div>
       </div>
@@ -563,7 +636,7 @@ function renderCard(card) {
   return el;
 }
 
-// JSONL 备注逻辑大改版（针对文件整体）
+// JSONL 备注美化
 function renderJL(container, card) {
   container.innerHTML = '';
   card.jsonls.forEach(jl => {
@@ -573,7 +646,9 @@ function renderJL(container, card) {
         <span>📄 ${esc(jl.filename)}</span>
         <span><button class="dl-jl">下载</button><button class="del-jl" style="margin-left:10px">删除</button></span>
       </div>
-      <textarea class="note-input" placeholder="给这个文件写个备注…" style="min-height: 40px; margin-bottom: 0; font-size: 12px;">${esc(jl.note||'')}</textarea>
+      <div class="jsonl-note-wrap">
+        <textarea placeholder="添加文件备注...">${esc(jl.note||'')}</textarea>
+      </div>
     `;
     const ta = block.querySelector('textarea');
     ta.oninput = () => { jl.note = ta.value; save(); };
@@ -584,7 +659,6 @@ function renderJL(container, card) {
 }
 async function importJL(card, file) {
   const txt = await readFile(file);
-  // 不再解析内容行，只存文件本身和备注
   card.jsonls.push({ id: uid(), filename: file.name, rawText: txt, note: '' });
   save(); renderCards();
 }
@@ -641,7 +715,6 @@ function renderWheel() {
   drawWheel();
 }
 
-// 修复浅色模式转盘看不见的问题
 function drawWheel() {
   const canvas = $('#wheelCanvas'); if(!canvas) return;
   const size = canvas.clientWidth; if(!size) return;
@@ -674,7 +747,6 @@ function drawWheel() {
   ctx.beginPath(); ctx.arc(cx,cy,20,0,Math.PI*2); ctx.fillStyle=getComputedStyle(document.body).backgroundColor; ctx.fill(); ctx.strokeStyle='rgba(128,128,128,0.3)'; ctx.stroke();
 }
 
-// 提速的转盘 + 绝美结果弹窗
 function spin() {
   if(spinning) return; const items = getWheelItems();
   if(!items.length) return alert('没有可抽取的角色');
@@ -690,12 +762,16 @@ function spin() {
   let off=0; for(let i=0;i<idx;i++) off+=((items[i].weight||1)/total)*Math.PI*2;
   const sliceAng = ((items[idx].weight||1)/total)*Math.PI*2, centerOff = off + sliceAng/2;
   
-  // 提速：转5圈，2.8秒完成
-  const target = -Math.PI/2 - centerOff + Math.PI*2*5;
-  const start = wheelAngle, dur = 2800, t0 = performance.now();
+  // 修复每次点击转动问题
+  const baseTarget = -Math.PI/2 - centerOff;
+  const start = wheelAngle;
+  let diff = baseTarget - start;
+  while (diff < Math.PI * 2 * 5) diff += Math.PI * 2; 
+  const target = start + diff;
+  
+  const dur = 2800, t0 = performance.now();
   let lastBeep = 0;
   
-  // 结尾带有弹性的缓动
   function easeOutBack(t) {
     const c1 = 1.70158, c3 = c1 + 1;
     return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
@@ -710,11 +786,12 @@ function spin() {
       requestAnimationFrame(frame); 
     } else {
       spinning = false; btn.disabled = false; btn.innerText = '开 始 抽 取';
+      wheelAngle = target % (Math.PI * 2); // 归一化
       winSound();
       const w = items[idx]; 
       if(state.noRepeat) { state.drawn.push(w.id); save(); }
       renderWheel();
-      showResultCard(w); // 调用新的特效弹窗
+      showResultCard(w);
     }
   }
   requestAnimationFrame(frame);
@@ -735,8 +812,6 @@ function showResultCard(w) {
   `;
   document.body.appendChild(overlay);
   
-  // 伪撒花特效 (借用 fx 粒子系统)
-  const oldType = fx.type;
   for(let i=0; i<40; i++) {
     fx.particles.push({
       x: innerWidth/2 + (Math.random()-0.5)*200, y: innerHeight/2,

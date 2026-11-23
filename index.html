@@ -9,13 +9,13 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
 :root {
-  --radius: 12px; /* 圆角缩小 */
-  --blur: blur(24px) saturate(180%);
+  --radius: 12px;
+  --blur: blur(20px) saturate(180%);
   --safe-bottom: env(safe-area-inset-bottom, 20px);
   
   /* 纯黑 */
   --bg-base: #000000;
-  --bg-solid: rgba(18, 18, 20, 0.95);
+  --bg-solid: rgba(18, 18, 20, 0.85); /* 降低透明度，透出背景 */
   --glass-border: rgba(255, 255, 255, 0.1);
   --glass-highlight: rgba(255, 255, 255, 0.05);
   --text-main: #ffffff;
@@ -27,12 +27,12 @@
   --group-text: #ffffff;
   --wheel-1: rgba(255,255,255,0.15); --wheel-2: rgba(255,255,255,0.05); --wheel-3: rgba(255,255,255,0.1); --wheel-4: rgba(255,255,255,0.02);
   --wheel-text: #fff;
-  --overlay-bg: rgba(0, 0, 0, 0.25); /* 变淡的毛玻璃层 */
+  --overlay-bg: rgba(0, 0, 0, 0.1); /* 遮罩变得极淡 */
 }
 [data-theme="light"] {
   /* 纯白 */
   --bg-base: #f5f5f7;
-  --bg-solid: rgba(255, 255, 255, 0.95);
+  --bg-solid: rgba(255, 255, 255, 0.85);
   --glass-border: rgba(0, 0, 0, 0.08);
   --glass-highlight: rgba(0, 0, 0, 0.04);
   --text-main: #1c1c1e;
@@ -44,12 +44,12 @@
   --group-text: #1c1c1e;
   --wheel-1: rgba(0,0,0,0.15); --wheel-2: rgba(0,0,0,0.05); --wheel-3: rgba(0,0,0,0.1); --wheel-4: rgba(0,0,0,0.02);
   --wheel-text: #1c1c1e;
-  --overlay-bg: rgba(255, 255, 255, 0.3);
+  --overlay-bg: rgba(255, 255, 255, 0.1);
 }
 [data-theme="blue"] {
   /* 静谧夜空蓝 */
   --bg-base: #0d1b2a;
-  --bg-solid: rgba(27, 38, 59, 0.95);
+  --bg-solid: rgba(27, 38, 59, 0.85);
   --glass-border: rgba(255, 255, 255, 0.12);
   --glass-highlight: rgba(255, 255, 255, 0.06);
   --text-main: #e0e1dd;
@@ -61,12 +61,12 @@
   --group-text: #7ce0ff;
   --wheel-1: rgba(0,150,255,0.2); --wheel-2: rgba(0,150,255,0.08); --wheel-3: rgba(0,150,255,0.15); --wheel-4: rgba(0,150,255,0.03);
   --wheel-text: #e0e1dd;
-  --overlay-bg: rgba(13, 27, 42, 0.3);
+  --overlay-bg: rgba(13, 27, 42, 0.1);
 }
 [data-theme="green"] {
   /* 极光绿 */
   --bg-base: #e3e8e4;
-  --bg-solid: rgba(227, 232, 228, 0.95);
+  --bg-solid: rgba(227, 232, 228, 0.85);
   --glass-border: rgba(100, 120, 110, 0.15);
   --glass-highlight: rgba(100, 120, 110, 0.08);
   --text-main: #2d3a33;
@@ -78,12 +78,12 @@
   --group-text: #1e5c1e;
   --wheel-1: rgba(100,120,110,0.15); --wheel-2: rgba(100,120,110,0.05); --wheel-3: rgba(100,120,110,0.1); --wheel-4: rgba(100,120,110,0.02);
   --wheel-text: #2d3a33;
-  --overlay-bg: rgba(227, 232, 228, 0.3);
+  --overlay-bg: rgba(227, 232, 228, 0.1);
 }
 [data-theme="pink"] {
   /* 奶油粉 */
   --bg-base: #f6ebeb;
-  --bg-solid: rgba(246, 235, 235, 0.95);
+  --bg-solid: rgba(246, 235, 235, 0.85);
   --glass-border: rgba(180, 140, 140, 0.15);
   --glass-highlight: rgba(180, 140, 140, 0.08);
   --text-main: #4a3535;
@@ -95,7 +95,7 @@
   --group-text: #b8005c;
   --wheel-1: rgba(180,140,140,0.15); --wheel-2: rgba(180,140,140,0.05); --wheel-3: rgba(180,140,140,0.1); --wheel-4: rgba(180,140,140,0.02);
   --wheel-text: #4a3535;
-  --overlay-bg: rgba(246, 235, 235, 0.3);
+  --overlay-bg: rgba(246, 235, 235, 0.1);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -116,7 +116,7 @@ body {
 }
 #bg-overlay {
   position: fixed; inset: 0; z-index: -1;
-  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); /* 大幅度削弱模糊，透出背景 */
+  backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); /* 极轻的模糊 */
   background: var(--overlay-bg);
   opacity: 0; transition: opacity 0.5s;
 }
@@ -159,6 +159,7 @@ main {
   display: flex; justify-content: space-around; align-items: center;
   padding: 6px 12px calc(6px + var(--safe-bottom));
   background: var(--bg-solid);
+  backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
   border-top: 1px solid var(--glass-border);
   box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
 }
@@ -205,6 +206,7 @@ main {
 .cards-list { display: flex; flex-direction: column; gap: 10px; }
 .card {
   background: var(--bg-solid);
+  backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
   border: 1px solid var(--glass-border); border-radius: var(--radius);
   padding: 12px; transition: 0.3s;
 }
@@ -249,25 +251,23 @@ textarea.note-input {
   color: var(--text-main); cursor: pointer;
 }
 
-/* 修复深色下看不见的问题 */
 .sort-actions { display: flex; gap: 4px; margin-left: auto; }
 .sort-btn { 
   padding: 2px 6px !important; 
-  background: var(--glass-border) !important; /* 使用亮一点的颜色作为底 */
+  background: var(--glass-border) !important; 
   color: var(--text-main) !important; 
   font-size: 10px !important;
   border: 1px solid var(--glass-border) !important;
   border-radius: 4px !important;
 }
 
-/* 极简 JSONL 区块 */
+/* JSONL */
 .jsonl-block { margin-top: 10px; padding: 10px; border-radius: 8px; background: var(--glass-highlight); }
 .jsonl-header { display: flex; justify-content: space-between; align-items: center; font-size: 12px; margin-bottom: 6px; font-weight: 500; word-break: break-all; }
 .jsonl-header span { flex: 1; margin-right: 8px; }
 .jsonl-header button { border: none; background: none; color: var(--text-sub); font-size: 11px; white-space: nowrap; padding: 4px; }
 .jsonl-header button.del-jl { color: var(--danger); }
 
-/* 备注前加细线 */
 .jsonl-note-wrap { 
   position: relative; 
   padding-left: 8px; 
@@ -282,7 +282,7 @@ textarea.note-input {
 }
 .jsonl-note-wrap textarea::placeholder { color: var(--text-muted); }
 
-/* 转盘页面 */
+/* 转盘 */
 .wheel-container { display: flex; flex-direction: column; align-items: center; gap: 16px; }
 .wheel-wrap { position: relative; width: 100%; aspect-ratio: 1; max-width: 340px; margin: 0 auto; }
 #wheelCanvas { width: 100%; height: 100%; display: block; }
@@ -300,7 +300,7 @@ textarea.note-input {
 .spin-btn:active { transform: scale(0.95); }
 .spin-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-/* 抽奖结果弹窗 */
+/* 抽奖结果 */
 .result-overlay {
   position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(10px); z-index: 90;
   display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 20px;
@@ -336,7 +336,7 @@ input:checked + .slider:before { transform: translateX(18px); background: var(--
 
 /* 小剧场 */
 .theater-list { display: flex; flex-direction: column; gap: 12px; }
-.theater-item { padding: 14px; border-radius: var(--radius); background: var(--bg-solid); border: 1px solid var(--glass-border); }
+.theater-item { padding: 14px; border-radius: var(--radius); background: var(--bg-solid); backdrop-filter: var(--blur); border: 1px solid var(--glass-border); }
 .theater-title { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
 .theater-body { font-size: 12px; color: var(--text-sub); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 10px; white-space: pre-wrap;}
 .theater-actions { display: flex; gap: 6px; }
@@ -949,7 +949,6 @@ function renderTheater() {
   state.theater.forEach(t => {
     const el = document.createElement('div'); el.className = 'theater-item';
     
-    // 针对旧数据兼容：如果之前存了 prefix/suffix，在展示时拼接起来
     let content = t.content || '';
     if(t.prefix) content = t.prefix + content;
     if(t.suffix) content = content + t.suffix;
@@ -1031,7 +1030,7 @@ function editTheater(t) {
       else { 
         t.title = title; 
         t.content = content; 
-        delete t.prefix; delete t.suffix; // 清除旧字段
+        delete t.prefix; delete t.suffix; 
       }
       save(); renderTheater(); closeModal();
     };

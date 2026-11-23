@@ -9,13 +9,13 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
 :root {
-  --radius: 16px;
+  --radius: 12px; /* 圆角缩小 */
   --blur: blur(24px) saturate(180%);
   --safe-bottom: env(safe-area-inset-bottom, 20px);
   
   /* 纯黑 */
   --bg-base: #000000;
-  --bg-solid: rgba(18, 18, 20, 0.95); /* 组件实色 */
+  --bg-solid: rgba(18, 18, 20, 0.95);
   --glass-border: rgba(255, 255, 255, 0.1);
   --glass-highlight: rgba(255, 255, 255, 0.05);
   --text-main: #ffffff;
@@ -27,7 +27,7 @@
   --group-text: #ffffff;
   --wheel-1: rgba(255,255,255,0.15); --wheel-2: rgba(255,255,255,0.05); --wheel-3: rgba(255,255,255,0.1); --wheel-4: rgba(255,255,255,0.02);
   --wheel-text: #fff;
-  --overlay-bg: rgba(0, 0, 0, 0.4); /* 背景毛玻璃底色 */
+  --overlay-bg: rgba(0, 0, 0, 0.25); /* 变淡的毛玻璃层 */
 }
 [data-theme="light"] {
   /* 纯白 */
@@ -44,7 +44,7 @@
   --group-text: #1c1c1e;
   --wheel-1: rgba(0,0,0,0.15); --wheel-2: rgba(0,0,0,0.05); --wheel-3: rgba(0,0,0,0.1); --wheel-4: rgba(0,0,0,0.02);
   --wheel-text: #1c1c1e;
-  --overlay-bg: rgba(255, 255, 255, 0.5);
+  --overlay-bg: rgba(255, 255, 255, 0.3);
 }
 [data-theme="blue"] {
   /* 静谧夜空蓝 */
@@ -61,7 +61,7 @@
   --group-text: #7ce0ff;
   --wheel-1: rgba(0,150,255,0.2); --wheel-2: rgba(0,150,255,0.08); --wheel-3: rgba(0,150,255,0.15); --wheel-4: rgba(0,150,255,0.03);
   --wheel-text: #e0e1dd;
-  --overlay-bg: rgba(13, 27, 42, 0.5);
+  --overlay-bg: rgba(13, 27, 42, 0.3);
 }
 [data-theme="green"] {
   /* 极光绿 */
@@ -78,7 +78,7 @@
   --group-text: #1e5c1e;
   --wheel-1: rgba(100,120,110,0.15); --wheel-2: rgba(100,120,110,0.05); --wheel-3: rgba(100,120,110,0.1); --wheel-4: rgba(100,120,110,0.02);
   --wheel-text: #2d3a33;
-  --overlay-bg: rgba(227, 232, 228, 0.5);
+  --overlay-bg: rgba(227, 232, 228, 0.3);
 }
 [data-theme="pink"] {
   /* 奶油粉 */
@@ -95,7 +95,7 @@
   --group-text: #b8005c;
   --wheel-1: rgba(180,140,140,0.15); --wheel-2: rgba(180,140,140,0.05); --wheel-3: rgba(180,140,140,0.1); --wheel-4: rgba(180,140,140,0.02);
   --wheel-text: #4a3535;
-  --overlay-bg: rgba(246, 235, 235, 0.5);
+  --overlay-bg: rgba(246, 235, 235, 0.3);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -109,7 +109,6 @@ body {
   transition: background 0.4s, color 0.4s;
 }
 
-/* 自定义背景图 + 全局毛玻璃层 */
 #bg-layer {
   position: fixed; inset: 0; z-index: -2;
   background-size: cover; background-position: center;
@@ -117,7 +116,7 @@ body {
 }
 #bg-overlay {
   position: fixed; inset: 0; z-index: -1;
-  backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); /* 大幅度削弱模糊，透出背景 */
   background: var(--overlay-bg);
   opacity: 0; transition: opacity 0.5s;
 }
@@ -136,13 +135,13 @@ header {
 .header-actions { display: flex; gap: 8px; align-items: center; }
 .icon-btn {
   background: var(--glass-highlight); border: 1px solid var(--glass-border);
-  color: var(--text-main); width: 32px; height: 32px; border-radius: 50%;
+  color: var(--text-main); width: 32px; height: 32px; border-radius: 8px;
   display: flex; align-items: center; justify-content: center;
-  font-size: 14px; cursor: pointer;
+  font-size: 14px; cursor: pointer; transition: 0.2s;
 }
 select.fx-select {
   background: var(--glass-highlight); border: 1px solid var(--glass-border);
-  color: var(--text-main); padding: 0 10px; height: 32px; border-radius: 16px;
+  color: var(--text-main); padding: 0 10px; height: 32px; border-radius: 8px;
   font-size: 12px; outline: none; appearance: none;
 }
 
@@ -167,7 +166,7 @@ main {
   display: flex; flex-direction: column; align-items: center; gap: 2px;
   color: var(--text-sub); font-size: 10px; font-weight: 500;
   border: none; background: none; cursor: pointer; padding: 6px 12px;
-  transition: 0.3s; border-radius: 10px;
+  transition: 0.3s; border-radius: 8px;
 }
 .nav-item svg { width: 20px; height: 20px; fill: currentColor; }
 .nav-item.active { color: var(--text-main); background: var(--glass-highlight); }
@@ -181,7 +180,7 @@ main {
 
 .toolbar { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
 .search-box {
-  width: 100%; padding: 12px 14px; border-radius: 12px;
+  width: 100%; padding: 12px 14px; border-radius: 10px;
   background: var(--bg-solid); border: 1px solid var(--glass-border);
   color: var(--text-main); font-size: 14px; outline: none;
 }
@@ -189,12 +188,12 @@ main {
 .filter-row { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
 .filter-row::-webkit-scrollbar { display: none; }
 .filter-row select {
-  padding: 8px 12px; border-radius: 10px; font-size: 12px; flex-shrink: 0;
+  padding: 8px 12px; border-radius: 8px; font-size: 12px; flex-shrink: 0;
   background: var(--bg-solid); border: 1px solid var(--glass-border);
   color: var(--text-main); outline: none;
 }
 .action-btn {
-  padding: 10px 14px; border-radius: 12px; font-size: 13px; font-weight: 500;
+  padding: 10px 14px; border-radius: 10px; font-size: 13px; font-weight: 500;
   display: flex; align-items: center; justify-content: center; gap: 4px;
   border: 1px solid var(--glass-border); background: var(--glass-highlight);
   color: var(--text-main); cursor: pointer; transition: 0.2s;
@@ -211,7 +210,7 @@ main {
 }
 .card-head { display: flex; align-items: center; gap: 12px; cursor: pointer; }
 .avatar {
-  width: 48px; height: 48px; border-radius: 50%; flex-shrink: 0;
+  width: 48px; height: 48px; border-radius: 8px; flex-shrink: 0;
   background: var(--glass-highlight); border: 1px solid var(--glass-border);
   display: flex; align-items: center; justify-content: center;
   font-size: 16px; font-weight: 600; color: var(--text-sub); overflow: hidden;
@@ -239,22 +238,30 @@ main {
 .section-label { font-size: 10px; color: var(--text-muted); letter-spacing: 0.05em; margin-bottom: 6px; }
 
 textarea.note-input {
-  width: 100%; padding: 10px; border-radius: 10px; min-height: 50px; resize: vertical;
+  width: 100%; padding: 10px; border-radius: 8px; min-height: 50px; resize: vertical;
   background: var(--glass-highlight); border: 1px solid var(--glass-border);
   color: var(--text-main); font-size: 12px; font-family: inherit; outline: none;
 }
 .card-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
 .card-actions label, .card-actions button {
-  padding: 6px 10px; font-size: 11px; border-radius: 8px;
+  padding: 6px 10px; font-size: 11px; border-radius: 6px;
   background: transparent; border: 1px solid var(--glass-border);
   color: var(--text-main); cursor: pointer;
 }
 
+/* 修复深色下看不见的问题 */
 .sort-actions { display: flex; gap: 4px; margin-left: auto; }
-.sort-btn { padding: 2px 6px !important; background: var(--glass-highlight) !important; font-size: 10px !important;}
+.sort-btn { 
+  padding: 2px 6px !important; 
+  background: var(--glass-border) !important; /* 使用亮一点的颜色作为底 */
+  color: var(--text-main) !important; 
+  font-size: 10px !important;
+  border: 1px solid var(--glass-border) !important;
+  border-radius: 4px !important;
+}
 
 /* 极简 JSONL 区块 */
-.jsonl-block { margin-top: 10px; padding: 10px; border-radius: 10px; background: var(--glass-highlight); }
+.jsonl-block { margin-top: 10px; padding: 10px; border-radius: 8px; background: var(--glass-highlight); }
 .jsonl-header { display: flex; justify-content: space-between; align-items: center; font-size: 12px; margin-bottom: 6px; font-weight: 500; word-break: break-all; }
 .jsonl-header span { flex: 1; margin-right: 8px; }
 .jsonl-header button { border: none; background: none; color: var(--text-sub); font-size: 11px; white-space: nowrap; padding: 4px; }
@@ -285,7 +292,7 @@ textarea.note-input {
   border-top: 20px solid var(--text-main); filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2)); z-index: 3;
 }
 .spin-btn {
-  width: 80%; max-width: 280px; padding: 14px; border-radius: 16px; margin-top: 8px;
+  width: 80%; max-width: 280px; padding: 14px; border-radius: 12px; margin-top: 8px;
   background: var(--text-main); color: var(--bg-base); border: none;
   font-size: 16px; font-weight: 600; letter-spacing: 0.05em; cursor: pointer;
   box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: 0.2s;
@@ -300,18 +307,18 @@ textarea.note-input {
   animation: fadeIn 0.3s;
 }
 .result-card {
-  background: var(--bg-solid); border: 1px solid var(--glass-border); border-radius: 24px; padding: 24px;
+  background: var(--bg-solid); border: 1px solid var(--glass-border); border-radius: 16px; padding: 24px;
   display: flex; flex-direction: column; align-items: center; gap: 12px;
   animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
   box-shadow: 0 10px 40px rgba(0,0,0,0.2); width: 100%; max-width: 280px;
 }
 @keyframes popIn { from { transform: scale(0.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-.result-card .avatar { width: 90px; height: 90px; font-size: 32px; }
+.result-card .avatar { width: 90px; height: 90px; font-size: 32px; border-radius: 12px; }
 .result-card h2 { font-size: 20px; font-weight: 700; margin-top: 4px; }
 .result-card p { color: var(--text-sub); font-size: 12px; margin-bottom: 8px; }
 .result-close { 
   background: var(--text-main); color: var(--bg-base); border: none; padding: 10px 24px; 
-  border-radius: 20px; font-size: 14px; font-weight: 600; cursor: pointer;
+  border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer;
 }
 
 .wheel-settings { width: 100%; margin-top: 16px; padding: 12px; }
@@ -333,17 +340,17 @@ input:checked + .slider:before { transform: translateX(18px); background: var(--
 .theater-title { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
 .theater-body { font-size: 12px; color: var(--text-sub); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 10px; white-space: pre-wrap;}
 .theater-actions { display: flex; gap: 6px; }
-.theater-actions button { padding: 6px 10px; border-radius: 8px; font-size: 11px; border: 1px solid var(--glass-border); background: transparent; color: var(--text-main); }
+.theater-actions button { padding: 6px 10px; border-radius: 6px; font-size: 11px; border: 1px solid var(--glass-border); background: transparent; color: var(--text-main); }
 
 /* 弹窗 */
 .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); z-index: 100; display: flex; align-items: flex-end; justify-content: center; animation: fadeIn 0.2s; }
-.modal { width: 100%; max-width: 600px; background: var(--bg-base); border: 1px solid var(--glass-border); border-radius: 20px 20px 0 0; padding: 20px; max-height: 90vh; overflow-y: auto; animation: slideUp 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.modal { width: 100%; max-width: 600px; background: var(--bg-base); border: 1px solid var(--glass-border); border-radius: 16px 16px 0 0; padding: 20px; max-height: 90vh; overflow-y: auto; animation: slideUp 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
 @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 .modal h3 { font-size: 16px; margin-bottom: 12px; font-weight: 600; }
-.modal input[type="text"], .modal textarea { width: 100%; padding: 12px; border-radius: 10px; margin-bottom: 10px; background: var(--glass-highlight); border: 1px solid var(--glass-border); color: var(--text-main); font-size: 13px; outline: none; }
+.modal input[type="text"], .modal textarea, .modal select { width: 100%; padding: 12px; border-radius: 8px; margin-bottom: 10px; background: var(--glass-highlight); border: 1px solid var(--glass-border); color: var(--text-main); font-size: 13px; outline: none; }
 .modal textarea { min-height: 80px; resize: vertical; }
 .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px; }
-.preview-box { padding: 10px; border-radius: 10px; background: var(--glass-highlight); font-size: 12px; line-height: 1.5; max-height: 200px; overflow-y: auto; white-space: pre-wrap; margin-bottom: 10px; }
+.preview-box { padding: 10px; border-radius: 8px; background: var(--glass-highlight); font-size: 12px; line-height: 1.5; max-height: 200px; overflow-y: auto; white-space: pre-wrap; margin-bottom: 10px; }
 
 /* 小剧场快捷标签 */
 .quick-tags { display: flex; gap: 6px; margin-bottom: 10px; }
@@ -417,8 +424,9 @@ input:checked + .slider:before { transform: translateX(18px); background: var(--
   </section>
 
   <section id="page-theater" class="page">
-    <div class="toolbar">
-      <button id="newTheaterBtn" class="action-btn primary">+ 新建小剧场</button>
+    <div class="toolbar" style="flex-direction: row; gap: 10px;">
+      <button id="newTheaterBtn" class="action-btn primary" style="flex:1">+ 新建小剧场</button>
+      <button id="manageFragBtn" class="action-btn">固定文本库</button>
     </div>
     <div id="theaterList" class="theater-list"></div>
   </section>
@@ -480,7 +488,7 @@ const IDB = {
 
 // ---------- State ----------
 let state = { 
-  cards: [], theater: [], theme: 'dark', fx: 'none', noRepeat: false, sound: true, drawn: [], 
+  cards: [], theater: [], fragments: [], theme: 'dark', fx: 'none', noRepeat: false, sound: true, drawn: [], 
   customBg: ''
 };
 let saveTimer = null;
@@ -548,7 +556,6 @@ $('#bgUpload').onchange = async e => {
   });
   state.customBg = base64;
   applyTheme(); save(); e.target.value = '';
-  alert('背景已更新！');
 };
 $('#clearBg').onclick = () => { state.customBg = ''; applyTheme(); save(); };
 
@@ -635,7 +642,7 @@ function getCards() {
     l.sort((a,b) => a.name.localeCompare(b.name,'zh'));
   } else if (sortMode === 'created') {
     l.sort((a,b) => b.createdAt - a.createdAt);
-  } // custom 模式直接使用 state.cards 的原有顺序
+  } 
 
   return l;
 }
@@ -722,7 +729,6 @@ function renderCard(card) {
   return el;
 }
 
-// 修复后的排序逻辑
 function moveCard(id, type) {
   const idx = state.cards.findIndex(c => c.id === id);
   if(idx === -1) return;
@@ -738,12 +744,10 @@ function moveCard(id, type) {
     state.cards.splice(idx, 0, card);
   }
   
-  // 强制切换到自定义排序，保证手动调整生效
   $('#sortSelect').value = 'custom';
   save(); renderCards();
 }
 
-// JSONL 极简线条风
 function renderJL(container, card) {
   container.innerHTML = '';
   card.jsonls.forEach(jl => {
@@ -938,19 +942,21 @@ $('#noRepeatToggle').onchange = e => { state.noRepeat = e.target.checked; save()
 $('#soundToggle').onchange = e => { state.sound = e.target.checked; save(); };
 $('#resetDrawn').onclick = () => { state.drawn = []; save(); renderWheel(); };
 
-// ---------- Theater ----------
+// ---------- Theater & Fragments ----------
 function renderTheater() {
   const list = $('#theaterList'); list.innerHTML = '';
   if(!state.theater.length) { list.innerHTML = '<div class="empty">还没有小剧场</div>'; return; }
   state.theater.forEach(t => {
     const el = document.createElement('div'); el.className = 'theater-item';
     
-    // 拼接完整文本用于展示
-    const fullText = (t.prefix||'') + t.content + (t.suffix||'');
+    // 针对旧数据兼容：如果之前存了 prefix/suffix，在展示时拼接起来
+    let content = t.content || '';
+    if(t.prefix) content = t.prefix + content;
+    if(t.suffix) content = content + t.suffix;
     
     el.innerHTML = `
       <div class="theater-title">${esc(t.title)}</div>
-      <div class="theater-body">${esc(fullText)}</div>
+      <div class="theater-body">${esc(content)}</div>
       <div class="theater-actions">
         <button class="t-copy">复制完整版</button>
         <button class="t-rep">替换</button>
@@ -958,39 +964,131 @@ function renderTheater() {
         <button class="t-del" style="color:var(--danger)">删除</button>
       </div>
     `;
-    el.querySelector('.t-copy').onclick = () => { navigator.clipboard.writeText(fullText); beep(880,0.05); };
+    el.querySelector('.t-copy').onclick = () => { navigator.clipboard.writeText(content); beep(880,0.05); };
     el.querySelector('.t-rep').onclick = () => repTheater(t);
     el.querySelector('.t-edit').onclick = () => editTheater(t);
     el.querySelector('.t-del').onclick = () => { if(confirm('删除?')) { state.theater = state.theater.filter(x=>x.id!==t.id); save(); renderTheater(); } };
     list.appendChild(el);
   });
 }
+
 function editTheater(t) {
-  const isNew = !t, data = t || {title:'', prefix:'', content:'', suffix:''};
+  const isNew = !t;
+  let initContent = '';
+  if (t) {
+    initContent = t.content || '';
+    if (t.prefix) initContent = t.prefix + initContent;
+    if (t.suffix) initContent = initContent + t.suffix;
+  }
+  
+  const fragOpts = state.fragments.map(f => `<option value="${f.id}">${esc(f.name)}</option>`).join('');
+
   openModal(isNew?'新建小剧场':'编辑小剧场', `
-    <input type="text" id="t-t" placeholder="标题" value="${esc(data.title)}">
-    <div class="section-label">前置固定文字</div>
-    <textarea id="t-p" placeholder="此处文字将自动拼在正文前面..." style="min-height:60px">${esc(data.prefix||'')}</textarea>
-    <div class="section-label">正文 (核心编辑区)</div>
-    <textarea id="t-c" placeholder="正文..." style="min-height:100px">${esc(data.content)}</textarea>
-    <div class="section-label">后置固定文字</div>
-    <textarea id="t-s" placeholder="此处文字将自动拼在正文后面..." style="min-height:60px">${esc(data.suffix||'')}</textarea>
+    <input type="text" id="t-t" placeholder="标题" value="${esc(t ? t.title : '')}">
+    
+    <div style="display:flex; gap:8px; margin-bottom:8px;">
+      <select id="t-prefix-sel" class="search-box" style="padding:8px; margin:0; flex:1; font-size:12px;">
+        <option value="">选择固定文本...</option>
+        ${fragOpts}
+      </select>
+      <button class="action-btn" id="insert-prefix" style="padding:8px 12px; font-size:12px;">插入开头</button>
+    </div>
+
+    <textarea id="t-c" placeholder="正文..." style="min-height:140px">${esc(initContent)}</textarea>
+    
+    <div style="display:flex; gap:8px; margin-bottom:12px;">
+      <select id="t-suffix-sel" class="search-box" style="padding:8px; margin:0; flex:1; font-size:12px;">
+        <option value="">选择固定文本...</option>
+        ${fragOpts}
+      </select>
+      <button class="action-btn" id="insert-suffix" style="padding:8px 12px; font-size:12px;">插入结尾</button>
+    </div>
+
     <div class="modal-actions"><button class="action-btn" data-close>取消</button><button class="action-btn primary" id="t-sv">保存</button></div>
   `, m => {
+    m.querySelector('#insert-prefix').onclick = () => {
+      const sel = m.querySelector('#t-prefix-sel');
+      if(!sel.value) return;
+      const frag = state.fragments.find(f => f.id === sel.value);
+      const ta = m.querySelector('#t-c');
+      ta.value = frag.content + ta.value;
+      beep(880,0.05);
+    };
+    m.querySelector('#insert-suffix').onclick = () => {
+      const sel = m.querySelector('#t-suffix-sel');
+      if(!sel.value) return;
+      const frag = state.fragments.find(f => f.id === sel.value);
+      const ta = m.querySelector('#t-c');
+      ta.value = ta.value + frag.content;
+      beep(880,0.05);
+    };
+    
     m.querySelector('#t-sv').onclick = () => {
       const title = m.querySelector('#t-t').value.trim();
-      const prefix = m.querySelector('#t-p').value;
       const content = m.querySelector('#t-c').value;
-      const suffix = m.querySelector('#t-s').value;
       if(!title) return alert('要填标题');
-      if(isNew) state.theater.unshift({id:uid(), title, prefix, content, suffix});
-      else { t.title=title; t.prefix=prefix; t.content=content; t.suffix=suffix; }
+      if(isNew) state.theater.unshift({id:uid(), title, content});
+      else { 
+        t.title = title; 
+        t.content = content; 
+        delete t.prefix; delete t.suffix; // 清除旧字段
+      }
       save(); renderTheater(); closeModal();
     };
   });
 }
+
+function manageFragments() {
+  const html = `
+    <div id="frag-list" style="max-height: 250px; overflow-y: auto; margin-bottom: 12px;"></div>
+    <div style="display:flex; gap:8px;">
+      <input type="text" id="frag-name" placeholder="名称 (如: 开场白)" style="flex:1; margin:0; padding:10px;">
+    </div>
+    <textarea id="frag-content" placeholder="固定文本内容..." style="min-height: 80px; margin-top:8px;"></textarea>
+    <div class="modal-actions" style="margin-top:0; display:flex; justify-content:space-between">
+      <button class="action-btn primary" id="add-frag">+ 添加</button>
+      <button class="action-btn" data-close>关闭</button>
+    </div>
+  `;
+  openModal('固定文本库', html, m => {
+    const renderList = () => {
+      const listEl = m.querySelector('#frag-list');
+      if(!state.fragments.length) { listEl.innerHTML = '<div class="empty" style="padding:10px">暂无固定文本</div>'; return; }
+      listEl.innerHTML = state.fragments.map(f => `
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px; border-bottom:1px solid var(--glass-border);">
+          <div style="flex:1; overflow:hidden; margin-right:10px;">
+            <div style="font-size:13px; font-weight:600;">${esc(f.name)}</div>
+            <div style="font-size:11px; color:var(--text-sub); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${esc(f.content)}</div>
+          </div>
+          <button class="action-btn del-frag" data-id="${f.id}" style="padding:4px 8px; font-size:11px; color:var(--danger); border-color:transparent;">删除</button>
+        </div>
+      `).join('');
+      listEl.querySelectorAll('.del-frag').forEach(btn => {
+        btn.onclick = () => {
+          state.fragments = state.fragments.filter(x => x.id !== btn.dataset.id);
+          save(); renderList(); beep(600,0.05);
+        };
+      });
+    };
+    renderList();
+    
+    m.querySelector('#add-frag').onclick = () => {
+      const name = m.querySelector('#frag-name').value.trim();
+      const content = m.querySelector('#frag-content').value;
+      if(!name || !content) return alert('名称和内容都要填');
+      state.fragments.push({ id: uid(), name, content });
+      m.querySelector('#frag-name').value = '';
+      m.querySelector('#frag-content').value = '';
+      save(); renderList(); beep(880,0.05);
+    };
+  });
+}
+
 function repTheater(t) {
-  const fullText = (t.prefix||'') + t.content + (t.suffix||'');
+  let fullText = t.content || '';
+  if(t.prefix) fullText = t.prefix + fullText;
+  if(t.suffix) fullText = fullText + t.suffix;
+  
   openModal('查找替换', `
     <div class="quick-tags">
       <div class="q-tag" onclick="document.getElementById('r-f').value='user'">填充: user</div>
@@ -1020,6 +1118,7 @@ function repTheater(t) {
   });
 }
 $('#newTheaterBtn').onclick = () => editTheater(null);
+$('#manageFragBtn').onclick = manageFragments;
 
 // ---------- Settings / Modal ----------
 $('#exportAll').onclick = () => download(JSON.stringify(state, null, 2), 'backup.json');
@@ -1029,7 +1128,7 @@ $('#importAll').onchange = async e => {
     if(confirm('覆盖当前数据?')) { state = {...state, ...d}; await IDB.set('state', state); applyTheme(); renderCards(); renderWheel(); renderTheater(); fx.setType(state.fx||'none'); alert('已导入'); }
   } catch(err) { alert('文件损坏'); } e.target.value = '';
 };
-$('#clearAll').onclick = () => { if(!confirm('清空全部?')) return; state = { cards:[], theater:[], theme:state.theme, fx:state.fx, noRepeat:false, sound:true, drawn:[], customBg:'' }; applyTheme(); save(); renderCards(); renderWheel(); renderTheater(); };
+$('#clearAll').onclick = () => { if(!confirm('清空全部?')) return; state = { cards:[], theater:[], fragments:[], theme:state.theme, fx:state.fx, noRepeat:false, sound:true, drawn:[], customBg:'' }; applyTheme(); save(); renderCards(); renderWheel(); renderTheater(); };
 $('#fxSelect').onchange = e => { state.fx = e.target.value; save(); fx.setType(state.fx); };
 
 function openModal(title, html, setup) {
@@ -1047,6 +1146,7 @@ function closeModal() { const m = $('.modal-bg'); if(m) m.remove(); }
 (async function() {
   await IDB.open(); const saved = await IDB.get('state');
   if(saved) state = { ...state, ...saved };
+  if (!state.fragments) state.fragments = [];
   applyTheme();
   $('#fxSelect').value = state.fx || 'none';
   $('#noRepeatToggle').checked = !!state.noRepeat;

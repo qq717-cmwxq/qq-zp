@@ -6,15 +6,17 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Card Vault</title>
-<!-- 引入 html2canvas 用于导出图片 -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
 :root {
+  --radius: 16px;
+  --blur: blur(24px) saturate(180%);
+  --safe-bottom: env(safe-area-inset-bottom, 20px);
+  
   /* 纯黑 */
   --bg-base: #000000;
-  --bg-gradient: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
-  --glass-bg: rgba(25, 25, 25, 0.45);
-  --glass-border: rgba(255, 255, 255, 0.12);
+  --bg-solid: rgba(18, 18, 20, 0.95); /* 组件实色 */
+  --glass-border: rgba(255, 255, 255, 0.1);
   --glass-highlight: rgba(255, 255, 255, 0.05);
   --text-main: #ffffff;
   --text-sub: #a1a1a6;
@@ -25,100 +27,98 @@
   --group-text: #ffffff;
   --wheel-1: rgba(255,255,255,0.15); --wheel-2: rgba(255,255,255,0.05); --wheel-3: rgba(255,255,255,0.1); --wheel-4: rgba(255,255,255,0.02);
   --wheel-text: #fff;
+  --overlay-bg: rgba(0, 0, 0, 0.4); /* 背景毛玻璃底色 */
 }
 [data-theme="light"] {
   /* 纯白 */
-  --bg-base: #f5f5f5;
-  --bg-gradient: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
-  --glass-bg: rgba(255, 255, 255, 0.65);
-  --glass-border: rgba(0, 0, 0, 0.1);
+  --bg-base: #f5f5f7;
+  --bg-solid: rgba(255, 255, 255, 0.95);
+  --glass-border: rgba(0, 0, 0, 0.08);
   --glass-highlight: rgba(0, 0, 0, 0.04);
   --text-main: #1c1c1e;
   --text-sub: #636366;
   --text-muted: #a1a1a6;
   --accent: #000000;
   --danger: #ff3b30;
-  --group-bg: rgba(0, 0, 0, 0.15);
+  --group-bg: rgba(0, 0, 0, 0.1);
   --group-text: #1c1c1e;
   --wheel-1: rgba(0,0,0,0.15); --wheel-2: rgba(0,0,0,0.05); --wheel-3: rgba(0,0,0,0.1); --wheel-4: rgba(0,0,0,0.02);
   --wheel-text: #1c1c1e;
+  --overlay-bg: rgba(255, 255, 255, 0.5);
 }
 [data-theme="blue"] {
   /* 静谧夜空蓝 */
   --bg-base: #0d1b2a;
-  --bg-gradient: linear-gradient(135deg, #1b263b 0%, #0d1b2a 100%);
-  --glass-bg: rgba(27, 38, 59, 0.45);
-  --glass-border: rgba(255, 255, 255, 0.15);
+  --bg-solid: rgba(27, 38, 59, 0.95);
+  --glass-border: rgba(255, 255, 255, 0.12);
   --glass-highlight: rgba(255, 255, 255, 0.06);
   --text-main: #e0e1dd;
   --text-sub: #9a9fa8;
   --text-muted: #5f6774;
   --accent: #e0e1dd;
   --danger: #ff6b6b;
-  --group-bg: rgba(0, 122, 255, 0.3);
+  --group-bg: rgba(0, 122, 255, 0.25);
   --group-text: #7ce0ff;
   --wheel-1: rgba(0,150,255,0.2); --wheel-2: rgba(0,150,255,0.08); --wheel-3: rgba(0,150,255,0.15); --wheel-4: rgba(0,150,255,0.03);
   --wheel-text: #e0e1dd;
+  --overlay-bg: rgba(13, 27, 42, 0.5);
 }
 [data-theme="green"] {
   /* 极光绿 */
   --bg-base: #e3e8e4;
-  --bg-gradient: linear-gradient(135deg, #f0f4f1 0%, #e3e8e4 100%);
-  --glass-bg: rgba(227, 232, 228, 0.65);
-  --glass-border: rgba(100, 120, 110, 0.2);
+  --bg-solid: rgba(227, 232, 228, 0.95);
+  --glass-border: rgba(100, 120, 110, 0.15);
   --glass-highlight: rgba(100, 120, 110, 0.08);
   --text-main: #2d3a33;
   --text-sub: #6b7c72;
   --text-muted: #a3b3a9;
   --accent: #2d3a33;
   --danger: #d16a6a;
-  --group-bg: rgba(34, 139, 34, 0.2);
+  --group-bg: rgba(34, 139, 34, 0.15);
   --group-text: #1e5c1e;
   --wheel-1: rgba(100,120,110,0.15); --wheel-2: rgba(100,120,110,0.05); --wheel-3: rgba(100,120,110,0.1); --wheel-4: rgba(100,120,110,0.02);
   --wheel-text: #2d3a33;
+  --overlay-bg: rgba(227, 232, 228, 0.5);
 }
 [data-theme="pink"] {
   /* 奶油粉 */
   --bg-base: #f6ebeb;
-  --bg-gradient: linear-gradient(135deg, #fcf5f5 0%, #f6ebeb 100%);
-  --glass-bg: rgba(246, 235, 235, 0.65);
-  --glass-border: rgba(180, 140, 140, 0.2);
+  --bg-solid: rgba(246, 235, 235, 0.95);
+  --glass-border: rgba(180, 140, 140, 0.15);
   --glass-highlight: rgba(180, 140, 140, 0.08);
   --text-main: #4a3535;
   --text-sub: #8c7070;
   --text-muted: #c4a7a7;
   --accent: #4a3535;
   --danger: #d16a6a;
-  --group-bg: rgba(255, 105, 180, 0.25);
+  --group-bg: rgba(255, 105, 180, 0.15);
   --group-text: #b8005c;
   --wheel-1: rgba(180,140,140,0.15); --wheel-2: rgba(180,140,140,0.05); --wheel-3: rgba(180,140,140,0.1); --wheel-4: rgba(180,140,140,0.02);
   --wheel-text: #4a3535;
-}
-
-:root {
-  --blur: blur(24px) saturate(180%);
-  --radius: 24px;
-  --safe-bottom: env(safe-area-inset-bottom, 20px);
+  --overlay-bg: rgba(246, 235, 235, 0.5);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   background-color: var(--bg-base);
-  background-image: var(--bg-gradient);
-  background-attachment: fixed;
-  background-size: cover;
-  background-position: center;
+  background-image: linear-gradient(135deg, var(--bg-base) 0%, var(--bg-base) 100%);
   color: var(--text-main);
   min-height: 100vh;
   overflow-x: hidden;
   transition: background 0.4s, color 0.4s;
 }
 
-/* 自定义背景层 */
+/* 自定义背景图 + 全局毛玻璃层 */
 #bg-layer {
-  position: fixed; inset: 0; z-index: -1;
+  position: fixed; inset: 0; z-index: -2;
   background-size: cover; background-position: center;
+  opacity: 0; transition: opacity 0.5s;
+}
+#bg-overlay {
+  position: fixed; inset: 0; z-index: -1;
+  backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
+  background: var(--overlay-bg);
   opacity: 0; transition: opacity 0.5s;
 }
 
@@ -126,79 +126,76 @@ body {
 
 header {
   position: sticky; top: 0; z-index: 10;
-  padding: 16px 20px;
+  padding: 12px 16px;
   display: flex; justify-content: space-between; align-items: center;
-  background: var(--glass-bg);
+  background: var(--bg-solid);
   backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
   border-bottom: 1px solid var(--glass-border);
 }
-.brand { font-weight: 600; font-size: 16px; letter-spacing: 0.2em; text-transform: uppercase; }
-.header-actions { display: flex; gap: 12px; align-items: center; }
+.brand { font-weight: 600; font-size: 15px; letter-spacing: 0.15em; text-transform: uppercase; }
+.header-actions { display: flex; gap: 8px; align-items: center; }
 .icon-btn {
   background: var(--glass-highlight); border: 1px solid var(--glass-border);
-  color: var(--text-main); width: 36px; height: 36px; border-radius: 50%;
+  color: var(--text-main); width: 32px; height: 32px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
-  font-size: 16px; cursor: pointer; backdrop-filter: var(--blur);
+  font-size: 14px; cursor: pointer;
 }
 select.fx-select {
   background: var(--glass-highlight); border: 1px solid var(--glass-border);
-  color: var(--text-main); padding: 0 12px; height: 36px; border-radius: 18px;
-  font-size: 13px; outline: none; backdrop-filter: var(--blur); appearance: none;
+  color: var(--text-main); padding: 0 10px; height: 32px; border-radius: 16px;
+  font-size: 12px; outline: none; appearance: none;
 }
 
 main {
-  padding: 20px 16px calc(100px + var(--safe-bottom));
-  max-width: 800px; margin: 0 auto;
+  padding: 16px 12px calc(90px + var(--safe-bottom));
+  max-width: 600px; margin: 0 auto;
   position: relative; z-index: 2;
 }
 .page { display: none; animation: fadeIn 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); }
 .page.active { display: block; }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
 .bottom-nav {
   position: fixed; bottom: 0; left: 0; right: 0; z-index: 20;
   display: flex; justify-content: space-around; align-items: center;
-  padding: 8px 12px calc(8px + var(--safe-bottom));
-  background: var(--glass-bg);
-  backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
+  padding: 6px 12px calc(6px + var(--safe-bottom));
+  background: var(--bg-solid);
   border-top: 1px solid var(--glass-border);
-  box-shadow: 0 -10px 40px rgba(0,0,0,0.05);
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
 }
 .nav-item {
-  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
   color: var(--text-sub); font-size: 10px; font-weight: 500;
-  border: none; background: none; cursor: pointer; padding: 8px 12px;
-  transition: 0.3s; border-radius: 12px; white-space: nowrap;
+  border: none; background: none; cursor: pointer; padding: 6px 12px;
+  transition: 0.3s; border-radius: 10px;
 }
-.nav-item svg { width: 22px; height: 22px; fill: currentColor; }
+.nav-item svg { width: 20px; height: 20px; fill: currentColor; }
 .nav-item.active { color: var(--text-main); background: var(--glass-highlight); }
 
 .glass-panel {
-  background: var(--glass-bg);
-  backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
+  background: var(--bg-solid);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
 }
 
-.toolbar { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+.toolbar { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
 .search-box {
-  width: 100%; padding: 14px 18px; border-radius: 16px;
-  background: var(--glass-bg); border: 1px solid var(--glass-border);
-  backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
-  color: var(--text-main); font-size: 15px; outline: none;
+  width: 100%; padding: 12px 14px; border-radius: 12px;
+  background: var(--bg-solid); border: 1px solid var(--glass-border);
+  color: var(--text-main); font-size: 14px; outline: none;
 }
-.search-box::placeholder { color: var(--text-sub); }
-.filter-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
+.search-box::placeholder { color: var(--text-muted); }
+.filter-row { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; }
 .filter-row::-webkit-scrollbar { display: none; }
 .filter-row select {
-  padding: 10px 16px; border-radius: 12px; font-size: 13px; flex-shrink: 0;
-  background: var(--glass-bg); border: 1px solid var(--glass-border);
-  color: var(--text-main); backdrop-filter: var(--blur); outline: none;
+  padding: 8px 12px; border-radius: 10px; font-size: 12px; flex-shrink: 0;
+  background: var(--bg-solid); border: 1px solid var(--glass-border);
+  color: var(--text-main); outline: none;
 }
 .action-btn {
-  padding: 12px 16px; border-radius: 14px; font-size: 14px; font-weight: 500;
-  display: flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 10px 14px; border-radius: 12px; font-size: 13px; font-weight: 500;
+  display: flex; align-items: center; justify-content: center; gap: 4px;
   border: 1px solid var(--glass-border); background: var(--glass-highlight);
   color: var(--text-main); cursor: pointer; transition: 0.2s;
 }
@@ -206,163 +203,159 @@ main {
 .action-btn:active { transform: scale(0.96); }
 
 /* 角色卡 */
-.cards-list { display: flex; flex-direction: column; gap: 12px; }
+.cards-list { display: flex; flex-direction: column; gap: 10px; }
 .card {
-  background: var(--glass-bg); backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
-  border: 1px solid var(--glass-border); border-radius: 20px;
-  padding: 16px; transition: 0.3s;
+  background: var(--bg-solid);
+  border: 1px solid var(--glass-border); border-radius: var(--radius);
+  padding: 12px; transition: 0.3s;
 }
-.card-head { display: flex; align-items: center; gap: 16px; cursor: pointer; }
+.card-head { display: flex; align-items: center; gap: 12px; cursor: pointer; }
 .avatar {
-  width: 56px; height: 56px; border-radius: 50%; flex-shrink: 0;
+  width: 48px; height: 48px; border-radius: 50%; flex-shrink: 0;
   background: var(--glass-highlight); border: 1px solid var(--glass-border);
   display: flex; align-items: center; justify-content: center;
-  font-size: 20px; font-weight: 600; color: var(--text-sub); overflow: hidden;
+  font-size: 16px; font-weight: 600; color: var(--text-sub); overflow: hidden;
 }
 .avatar img { width: 100%; height: 100%; object-fit: cover; }
 .card-info { flex: 1; min-width: 0; }
-.card-title { font-size: 16px; font-weight: 600; margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.card-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-/* 分组和标签区分及滑动 */
-.card-meta { display: flex; align-items: center; gap: 8px; font-size: 11px; color: var(--text-sub); overflow: hidden; width: 100%; }
+.card-meta { display: flex; align-items: center; gap: 6px; font-size: 10px; color: var(--text-sub); overflow: hidden; width: 100%; }
 .meta-group { 
-  display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 6px;
+  display: inline-flex; align-items: center; padding: 2px 6px; border-radius: 4px;
   background: var(--group-bg); color: var(--group-text); font-weight: 600;
-  flex-shrink: 0; letter-spacing: 0.5px;
+  flex-shrink: 0; 
 }
-.meta-tags { 
-  display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; 
-  flex: 1; padding-bottom: 2px; 
-}
+.meta-tags { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; flex: 1; padding-bottom: 2px; }
 .meta-tags::-webkit-scrollbar { display: none; }
-.meta-tag { 
-  background: var(--glass-highlight); padding: 2px 6px; border-radius: 4px; white-space: nowrap;
-}
+.meta-tag { background: var(--glass-highlight); padding: 2px 6px; border-radius: 4px; white-space: nowrap; }
 .meta-tag::before { content: "#"; opacity: 0.5; margin-right: 1px; }
 
-.arrow { color: var(--text-muted); transition: 0.3s; font-size: 12px; flex-shrink: 0; }
+.arrow { color: var(--text-muted); transition: 0.3s; font-size: 10px; flex-shrink: 0; }
 .card.open .arrow { transform: rotate(180deg); }
 
-.card-body { display: none; margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--glass-border); }
+.card-body { display: none; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--glass-border); }
 .card.open .card-body { display: block; animation: fadeIn 0.3s; }
-.section-label { font-size: 11px; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
+.section-label { font-size: 10px; color: var(--text-muted); letter-spacing: 0.05em; margin-bottom: 6px; }
+
 textarea.note-input {
-  width: 100%; padding: 12px; border-radius: 12px; min-height: 60px; resize: vertical;
+  width: 100%; padding: 10px; border-radius: 10px; min-height: 50px; resize: vertical;
   background: var(--glass-highlight); border: 1px solid var(--glass-border);
-  color: var(--text-main); font-size: 13px; font-family: inherit; outline: none;
+  color: var(--text-main); font-size: 12px; font-family: inherit; outline: none;
 }
-.card-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.card-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
 .card-actions label, .card-actions button {
-  padding: 8px 12px; font-size: 12px; border-radius: 10px;
+  padding: 6px 10px; font-size: 11px; border-radius: 8px;
   background: transparent; border: 1px solid var(--glass-border);
   color: var(--text-main); cursor: pointer;
 }
 
-/* 排序按钮组 */
 .sort-actions { display: flex; gap: 4px; margin-left: auto; }
-.sort-btn { padding: 4px 8px !important; background: var(--glass-highlight) !important; font-size: 11px !important;}
+.sort-btn { padding: 2px 6px !important; background: var(--glass-highlight) !important; font-size: 10px !important;}
 
-/* 美化后的 JSONL 区块 */
-.jsonl-block { margin-top: 12px; padding: 12px; border-radius: 12px; background: rgba(128,128,128,0.05); }
-.jsonl-header { display: flex; justify-content: space-between; align-items: center; font-size: 13px; margin-bottom: 8px; font-weight: 500; word-break: break-all; }
-.jsonl-header span { flex: 1; margin-right: 10px; }
-.jsonl-header button { border: none; background: none; color: var(--text-sub); font-size: 12px; white-space: nowrap; padding: 4px; }
+/* 极简 JSONL 区块 */
+.jsonl-block { margin-top: 10px; padding: 10px; border-radius: 10px; background: var(--glass-highlight); }
+.jsonl-header { display: flex; justify-content: space-between; align-items: center; font-size: 12px; margin-bottom: 6px; font-weight: 500; word-break: break-all; }
+.jsonl-header span { flex: 1; margin-right: 8px; }
+.jsonl-header button { border: none; background: none; color: var(--text-sub); font-size: 11px; white-space: nowrap; padding: 4px; }
 .jsonl-header button.del-jl { color: var(--danger); }
 
-.jsonl-note-wrap { position: relative; }
-.jsonl-note-wrap::before {
-  content: "✎"; position: absolute; left: 12px; top: 9px; 
-  color: var(--text-sub); font-size: 12px; pointer-events: none; opacity: 0.7;
+/* 备注前加细线 */
+.jsonl-note-wrap { 
+  position: relative; 
+  padding-left: 8px; 
+  border-left: 2px solid var(--text-muted); 
+  margin-left: 2px;
 }
 .jsonl-note-wrap textarea {
-  width: 100%; min-height: 36px; padding: 8px 12px 8px 30px; 
-  background: rgba(128,128,128,0.05); border: none; border-radius: 8px;
-  color: var(--text-main); font-size: 12px; font-family: inherit; resize: none;
-  outline: none; transition: 0.2s;
+  width: 100%; min-height: 24px; padding: 4px 0; 
+  background: transparent; border: none;
+  color: var(--text-main); font-size: 12px; font-family: inherit; resize: vertical;
+  outline: none;
 }
-.jsonl-note-wrap textarea:focus { background: rgba(128,128,128,0.1); }
+.jsonl-note-wrap textarea::placeholder { color: var(--text-muted); }
 
 /* 转盘页面 */
-.wheel-container { display: flex; flex-direction: column; align-items: center; gap: 20px; }
-.wheel-wrap { position: relative; width: 100%; aspect-ratio: 1; max-width: 380px; margin: 0 auto; }
+.wheel-container { display: flex; flex-direction: column; align-items: center; gap: 16px; }
+.wheel-wrap { position: relative; width: 100%; aspect-ratio: 1; max-width: 340px; margin: 0 auto; }
 #wheelCanvas { width: 100%; height: 100%; display: block; }
 .wheel-pointer {
-  position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
-  width: 0; height: 0; border-left: 14px solid transparent; border-right: 14px solid transparent;
-  border-top: 24px solid var(--text-main); filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3)); z-index: 3;
+  position: absolute; top: -8px; left: 50%; transform: translateX(-50%);
+  width: 0; height: 0; border-left: 12px solid transparent; border-right: 12px solid transparent;
+  border-top: 20px solid var(--text-main); filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2)); z-index: 3;
 }
 .spin-btn {
-  width: 80%; max-width: 300px; padding: 16px; border-radius: 20px; margin-top: 10px;
+  width: 80%; max-width: 280px; padding: 14px; border-radius: 16px; margin-top: 8px;
   background: var(--text-main); color: var(--bg-base); border: none;
-  font-size: 18px; font-weight: 600; letter-spacing: 0.1em; cursor: pointer;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.1); transition: 0.2s;
+  font-size: 16px; font-weight: 600; letter-spacing: 0.05em; cursor: pointer;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: 0.2s;
 }
 .spin-btn:active { transform: scale(0.95); }
 .spin-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
 /* 抽奖结果弹窗 */
 .result-overlay {
-  position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); z-index: 90;
+  position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(10px); z-index: 90;
   display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 20px;
   animation: fadeIn 0.3s;
 }
 .result-card {
-  background: var(--glass-bg); backdrop-filter: var(--blur);
-  border: 1px solid var(--glass-border); border-radius: 32px; padding: 30px;
-  display: flex; flex-direction: column; align-items: center; gap: 16px;
-  animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-  box-shadow: 0 20px 50px rgba(0,0,0,0.2); width: 100%; max-width: 320px;
+  background: var(--bg-solid); border: 1px solid var(--glass-border); border-radius: 24px; padding: 24px;
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+  animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 10px 40px rgba(0,0,0,0.2); width: 100%; max-width: 280px;
 }
 @keyframes popIn { from { transform: scale(0.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-.result-card .avatar { width: 100px; height: 100px; font-size: 40px; box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
-.result-card h2 { font-size: 22px; font-weight: 700; margin-top: 8px; letter-spacing: 0.05em; }
-.result-card p { color: var(--text-sub); font-size: 13px; margin-bottom: 12px; }
+.result-card .avatar { width: 90px; height: 90px; font-size: 32px; }
+.result-card h2 { font-size: 20px; font-weight: 700; margin-top: 4px; }
+.result-card p { color: var(--text-sub); font-size: 12px; margin-bottom: 8px; }
 .result-close { 
-  background: var(--text-main); color: var(--bg-base); border: none; padding: 12px 30px; 
-  border-radius: 30px; font-size: 15px; font-weight: 600; cursor: pointer;
+  background: var(--text-main); color: var(--bg-base); border: none; padding: 10px 24px; 
+  border-radius: 20px; font-size: 14px; font-weight: 600; cursor: pointer;
 }
 
-.wheel-settings { width: 100%; margin-top: 20px; padding: 16px; }
-.settings-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--glass-border); font-size: 14px; }
+.wheel-settings { width: 100%; margin-top: 16px; padding: 12px; }
+.settings-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--glass-border); font-size: 13px; }
 .settings-row:last-child { border-bottom: none; }
-.switch { position: relative; width: 50px; height: 30px; }
+.switch { position: relative; width: 44px; height: 26px; }
 .switch input { opacity: 0; width: 0; height: 0; }
-.slider { position: absolute; inset: 0; background: var(--glass-highlight); border: 1px solid var(--glass-border); border-radius: 30px; transition: .4s; cursor: pointer; }
-.slider:before { position: absolute; content: ""; height: 24px; width: 24px; left: 2px; bottom: 2px; background: var(--text-sub); border-radius: 50%; transition: .4s; }
+.slider { position: absolute; inset: 0; background: var(--glass-highlight); border: 1px solid var(--glass-border); border-radius: 26px; transition: .4s; cursor: pointer; }
+.slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 2px; bottom: 2px; background: var(--text-sub); border-radius: 50%; transition: .4s; }
 input:checked + .slider { background: var(--text-main); }
-input:checked + .slider:before { transform: translateX(20px); background: var(--bg-base); }
-.wheel-items-list { max-height: 250px; overflow-y: auto; margin-top: 10px; }
-.w-item { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--glass-border); font-size: 14px; }
-.w-item input[type="number"] { width: 50px; padding: 6px; border-radius: 8px; border: 1px solid var(--glass-border); background: transparent; color: var(--text-main); text-align: center; }
+input:checked + .slider:before { transform: translateX(18px); background: var(--bg-base); }
+.wheel-items-list { max-height: 200px; overflow-y: auto; margin-top: 8px; }
+.w-item { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid var(--glass-border); font-size: 13px; }
+.w-item input[type="number"] { width: 44px; padding: 4px; border-radius: 6px; border: 1px solid var(--glass-border); background: transparent; color: var(--text-main); text-align: center; }
 
 /* 小剧场 */
-.theater-list { display: flex; flex-direction: column; gap: 16px; }
-.theater-item { padding: 16px; border-radius: 20px; background: var(--glass-bg); border: 1px solid var(--glass-border); backdrop-filter: var(--blur); }
-.theater-title { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
-.theater-body { font-size: 13px; color: var(--text-sub); line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 12px; }
-.theater-actions { display: flex; gap: 8px; }
-.theater-actions button { padding: 6px 12px; border-radius: 8px; font-size: 12px; border: 1px solid var(--glass-border); background: transparent; color: var(--text-main); }
+.theater-list { display: flex; flex-direction: column; gap: 12px; }
+.theater-item { padding: 14px; border-radius: var(--radius); background: var(--bg-solid); border: 1px solid var(--glass-border); }
+.theater-title { font-size: 15px; font-weight: 600; margin-bottom: 6px; }
+.theater-body { font-size: 12px; color: var(--text-sub); line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 10px; white-space: pre-wrap;}
+.theater-actions { display: flex; gap: 6px; }
+.theater-actions button { padding: 6px 10px; border-radius: 8px; font-size: 11px; border: 1px solid var(--glass-border); background: transparent; color: var(--text-main); }
 
 /* 弹窗 */
-.modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); z-index: 100; display: flex; align-items: flex-end; justify-content: center; animation: fadeIn 0.2s; }
-.modal { width: 100%; max-width: 600px; background: var(--bg-base); border: 1px solid var(--glass-border); border-radius: 24px 24px 0 0; padding: 24px; max-height: 90vh; overflow-y: auto; animation: slideUp 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); z-index: 100; display: flex; align-items: flex-end; justify-content: center; animation: fadeIn 0.2s; }
+.modal { width: 100%; max-width: 600px; background: var(--bg-base); border: 1px solid var(--glass-border); border-radius: 20px 20px 0 0; padding: 20px; max-height: 90vh; overflow-y: auto; animation: slideUp 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
 @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-.modal h3 { font-size: 18px; margin-bottom: 16px; font-weight: 600; }
-.modal input[type="text"], .modal textarea { width: 100%; padding: 14px; border-radius: 12px; margin-bottom: 12px; background: var(--glass-highlight); border: 1px solid var(--glass-border); color: var(--text-main); font-size: 14px; outline: none; }
-.modal textarea { min-height: 120px; resize: vertical; }
-.modal-actions { display: flex; gap: 12px; justify-content: flex-end; margin-top: 20px; }
-.preview-box { padding: 12px; border-radius: 12px; background: var(--glass-highlight); font-size: 13px; line-height: 1.6; max-height: 200px; overflow-y: auto; white-space: pre-wrap; margin-bottom: 12px; }
+.modal h3 { font-size: 16px; margin-bottom: 12px; font-weight: 600; }
+.modal input[type="text"], .modal textarea { width: 100%; padding: 12px; border-radius: 10px; margin-bottom: 10px; background: var(--glass-highlight); border: 1px solid var(--glass-border); color: var(--text-main); font-size: 13px; outline: none; }
+.modal textarea { min-height: 80px; resize: vertical; }
+.modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px; }
+.preview-box { padding: 10px; border-radius: 10px; background: var(--glass-highlight); font-size: 12px; line-height: 1.5; max-height: 200px; overflow-y: auto; white-space: pre-wrap; margin-bottom: 10px; }
 
 /* 小剧场快捷标签 */
-.quick-tags { display: flex; gap: 8px; margin-bottom: 12px; }
-.q-tag { padding: 6px 12px; border-radius: 8px; background: var(--glass-highlight); border: 1px solid var(--glass-border); font-size: 13px; cursor: pointer; user-select: none; }
+.quick-tags { display: flex; gap: 6px; margin-bottom: 10px; }
+.q-tag { padding: 6px 10px; border-radius: 6px; background: var(--glass-highlight); border: 1px solid var(--glass-border); font-size: 12px; cursor: pointer; user-select: none; }
 .q-tag:active { background: var(--text-sub); color: var(--bg-base); }
 
-.empty { text-align: center; color: var(--text-sub); padding: 60px 20px; font-size: 14px; }
+.empty { text-align: center; color: var(--text-sub); padding: 40px 20px; font-size: 13px; }
 </style>
 </head>
 <body>
 <div id="bg-layer"></div>
+<div id="bg-overlay"></div>
 <canvas id="fxCanvas"></canvas>
 
 <header>
@@ -385,6 +378,7 @@ input:checked + .slider:before { transform: translateX(20px); background: var(--
       <div class="filter-row">
         <select id="groupFilter"><option value="">全部分组</option></select>
         <select id="sortSelect">
+          <option value="custom">自定义顺序</option>
           <option value="created">按最新</option>
           <option value="name">按名字</option>
         </select>
@@ -413,9 +407,9 @@ input:checked + .slider:before { transform: translateX(20px); background: var(--
           <span>音效</span>
           <label class="switch"><input type="checkbox" id="soundToggle" checked><span class="slider"></span></label>
         </div>
-        <div class="settings-row" style="margin-top:10px; border:none; padding-bottom:0">
+        <div class="settings-row" style="margin-top:6px; border:none; padding-bottom:0">
           <span style="font-weight:600">参与角色 & 权重</span>
-          <button id="resetDrawn" class="theater-actions" style="padding:4px 8px; border-radius:6px; border:1px solid var(--glass-border); background:none; color:var(--text-main); font-size:12px">重置已抽</button>
+          <button id="resetDrawn" class="theater-actions" style="padding:4px 8px; border-radius:6px; border:1px solid var(--glass-border); background:none; color:var(--text-main); font-size:11px">重置已抽</button>
         </div>
         <div id="wheelList" class="wheel-items-list"></div>
       </div>
@@ -430,12 +424,12 @@ input:checked + .slider:before { transform: translateX(20px); background: var(--
   </section>
 
   <section id="page-settings" class="page">
-    <div class="glass-panel" style="padding: 20px; display:flex; flex-direction:column; gap:12px;">
-      <h3 style="font-size:16px; margin-bottom:8px;">外观与背景</h3>
+    <div class="glass-panel" style="padding: 16px; display:flex; flex-direction:column; gap:10px;">
+      <h3 style="font-size:14px; margin-bottom:4px;">外观与背景</h3>
       <label class="action-btn">上传自定义背景图<input type="file" id="bgUpload" accept="image/*" hidden></label>
       <button id="clearBg" class="action-btn" style="color:var(--danger); border-color:var(--danger)">清除背景图</button>
       
-      <h3 style="font-size:16px; margin-top:16px; margin-bottom:8px;">数据管理</h3>
+      <h3 style="font-size:14px; margin-top:12px; margin-bottom:4px;">数据管理</h3>
       <button id="exportAll" class="action-btn">导出全量备份</button>
       <label class="action-btn">导入备份<input type="file" id="importAll" accept=".json" hidden></label>
       <button id="clearAll" class="action-btn" style="color:var(--danger); border-color:var(--danger)">清空所有数据</button>
@@ -487,7 +481,7 @@ const IDB = {
 // ---------- State ----------
 let state = { 
   cards: [], theater: [], theme: 'dark', fx: 'none', noRepeat: false, sound: true, drawn: [], 
-  customBg: '' // 存储背景图的 base64
+  customBg: ''
 };
 let saveTimer = null;
 function save() { clearTimeout(saveTimer); saveTimer = setTimeout(() => IDB.set('state', state), 300); }
@@ -519,17 +513,16 @@ const themes = ['dark', 'light', 'blue', 'green', 'pink'];
 function applyTheme() { 
   document.documentElement.dataset.theme = state.theme; 
   drawWheel(); 
-  // 处理背景图
   const bgLayer = $('#bg-layer');
+  const bgOverlay = $('#bg-overlay');
   if(state.customBg) {
     bgLayer.style.backgroundImage = `url(${state.customBg})`;
     bgLayer.style.opacity = '1';
-    // 为了看清毛玻璃，如果有自定义背景，稍微加深一点玻璃的底色
-    document.documentElement.style.setProperty('--glass-bg', state.theme === 'light' || state.theme === 'green' || state.theme === 'pink' ? 'rgba(255,255,255,0.45)' : 'rgba(20,20,25,0.45)');
+    bgOverlay.style.opacity = '1';
   } else {
     bgLayer.style.backgroundImage = 'none';
     bgLayer.style.opacity = '0';
-    document.documentElement.style.removeProperty('--glass-bg');
+    bgOverlay.style.opacity = '0';
   }
 }
 $('#themeBtn').onclick = () => { 
@@ -538,16 +531,14 @@ $('#themeBtn').onclick = () => {
   applyTheme(); save(); 
 };
 
-// 自定义背景导入
 $('#bgUpload').onchange = async e => {
   const f = e.target.files[0]; if(!f) return;
-  // 背景图稍微压缩一下，防止撑爆存储
   const base64 = await new Promise((resolve) => {
     const img = new Image(); const url = URL.createObjectURL(f);
     img.onload = () => {
       URL.revokeObjectURL(url);
       let w = img.width, h = img.height;
-      const s = Math.min(1, 1600 / Math.max(w, h)); // 限制最大边 1600px
+      const s = Math.min(1, 1600 / Math.max(w, h)); 
       w = Math.round(w*s); h = Math.round(h*s);
       const c = document.createElement('canvas'); c.width = w; c.height = h;
       c.getContext('2d').drawImage(img, 0, 0, w, h);
@@ -638,7 +629,14 @@ function getCards() {
   const g = $('#groupFilter').value;
   if(q) l = l.filter(c => c.name.toLowerCase().includes(q) || (c.note||'').toLowerCase().includes(q) || (c.tags||[]).some(t=>t.toLowerCase().includes(q)));
   if(g) l = l.filter(c => (c.group||'') === g);
-  l.sort((a,b) => $('#sortSelect').value === 'name' ? a.name.localeCompare(b.name,'zh') : b.createdAt - a.createdAt);
+  
+  const sortMode = $('#sortSelect').value;
+  if (sortMode === 'name') {
+    l.sort((a,b) => a.name.localeCompare(b.name,'zh'));
+  } else if (sortMode === 'created') {
+    l.sort((a,b) => b.createdAt - a.createdAt);
+  } // custom 模式直接使用 state.cards 的原有顺序
+
   return l;
 }
 function renderCards() {
@@ -673,7 +671,7 @@ function renderCard(card) {
       <div class="arrow">▼</div>
     </div>
     <div class="card-body">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
         <div class="section-label" style="margin:0">备注</div>
         <div class="sort-actions">
           <button class="sort-btn sort-top">置顶</button>
@@ -686,7 +684,7 @@ function renderCard(card) {
         <label>换头像<input type="file" class="av-input" accept="image/*" hidden></label>
         <button class="dl-json">下载 JSON</button>
         <label>导入 JSONL<input type="file" class="jl-input" accept=".jsonl,.txt" hidden></label>
-        <button class="exp-img">导出为图片</button>
+        <button class="exp-img">导出图片</button>
         <button class="edit-meta">分组/标签</button>
         <button class="del-card" style="color:var(--danger)">删除</button>
       </div>
@@ -702,15 +700,12 @@ function renderCard(card) {
   el.querySelector('.edit-meta').onclick = () => editMeta(card);
   el.querySelector('.del-card').onclick = () => { if(confirm(`删除「${card.name}」?`)) { state.cards = state.cards.filter(x=>x.id!==card.id); save(); renderCards(); } };
   
-  // 排序功能
   el.querySelector('.sort-top').onclick = (e) => { e.stopPropagation(); moveCard(card.id, 'top'); };
   el.querySelector('.sort-up').onclick = (e) => { e.stopPropagation(); moveCard(card.id, 'up'); };
   el.querySelector('.sort-down').onclick = (e) => { e.stopPropagation(); moveCard(card.id, 'down'); };
 
-  // 导出图片功能
   el.querySelector('.exp-img').onclick = (e) => {
     e.stopPropagation();
-    // 临时把展开的卡片变成默认样式以便截图
     el.classList.remove('open'); 
     setTimeout(() => {
       html2canvas(el, { backgroundColor: null, scale: 2, useCORS: true }).then(canvas => {
@@ -718,7 +713,7 @@ function renderCard(card) {
         a.href = canvas.toDataURL('image/png');
         a.download = `${card.name}.png`;
         a.click();
-        el.classList.add('open'); // 恢复
+        el.classList.add('open');
       }).catch(err => { alert('导出失败'); el.classList.add('open'); });
     }, 100);
   };
@@ -727,10 +722,12 @@ function renderCard(card) {
   return el;
 }
 
+// 修复后的排序逻辑
 function moveCard(id, type) {
   const idx = state.cards.findIndex(c => c.id === id);
   if(idx === -1) return;
   const card = state.cards.splice(idx, 1)[0];
+  
   if(type === 'top') {
     state.cards.unshift(card);
   } else if(type === 'up' && idx > 0) {
@@ -740,14 +737,13 @@ function moveCard(id, type) {
   } else {
     state.cards.splice(idx, 0, card);
   }
-  // 自动改成自定义排序
-  $('#sortSelect').value = 'created'; // 因为自定义排序其实依靠的是数组顺序
-  // 需要修改 created 时间戳来适应“按最新”排序吗？不，为了简单，只要把数组顺序改了，刷新列表就行。
-  // 但如果排序选了按名字，就无效。我们强制改为默认按修改数组顺序。
-  // 为了兼容：直接重绘
+  
+  // 强制切换到自定义排序，保证手动调整生效
+  $('#sortSelect').value = 'custom';
   save(); renderCards();
 }
 
+// JSONL 极简线条风
 function renderJL(container, card) {
   container.innerHTML = '';
   card.jsonls.forEach(jl => {
@@ -758,7 +754,7 @@ function renderJL(container, card) {
         <span><button class="dl-jl">下载</button><button class="del-jl" style="margin-left:10px">删除</button></span>
       </div>
       <div class="jsonl-note-wrap">
-        <textarea placeholder="添加文件备注...">${esc(jl.note||'')}</textarea>
+        <textarea placeholder="添加备注...">${esc(jl.note||'')}</textarea>
       </div>
     `;
     const ta = block.querySelector('textarea');
@@ -810,7 +806,7 @@ function getWheelItems() { return state.cards.filter(c => c.wheelOn !== false &&
 
 function renderWheel() {
   const list = $('#wheelList'); list.innerHTML = '';
-  if(!state.cards.length) list.innerHTML = '<div style="font-size:12px;color:var(--text-sub);padding:10px 0">暂无角色卡</div>';
+  if(!state.cards.length) list.innerHTML = '<div style="font-size:11px;color:var(--text-sub);padding:10px 0">暂无角色卡</div>';
   state.cards.forEach(c => {
     const on = c.wheelOn !== false, drawn = state.drawn.includes(c.id);
     const div = document.createElement('div'); div.className = 'w-item';
@@ -832,7 +828,7 @@ function drawWheel() {
   const dpr = window.devicePixelRatio||1;
   canvas.width = size*dpr; canvas.height = size*dpr;
   const ctx = canvas.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,size,size);
-  const cx = size/2, cy = size/2, r = size/2-10;
+  const cx = size/2, cy = size/2, r = size/2-8;
   const items = getWheelItems();
   
   const cs = getComputedStyle(document.documentElement);
@@ -843,19 +839,19 @@ function drawWheel() {
 
   if(!items.length) {
     ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.fillStyle=c2; ctx.fill();
-    ctx.fillStyle=textColor; ctx.globalAlpha=0.5; ctx.font='14px sans-serif'; ctx.textAlign='center'; ctx.fillText('请勾选参与角色', cx, cy); return;
+    ctx.fillStyle=textColor; ctx.globalAlpha=0.5; ctx.font='12px sans-serif'; ctx.textAlign='center'; ctx.fillText('请勾选参与角色', cx, cy); return;
   }
   const total = items.reduce((s,i)=>s+(i.weight||1),0); let start = wheelAngle;
   items.forEach((item,i) => {
     const ang = ((item.weight||1)/total)*Math.PI*2;
     ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,r,start,start+ang); ctx.closePath();
     ctx.fillStyle = shades[i % shades.length]; ctx.fill();
-    ctx.strokeStyle = 'rgba(128,128,128,0.2)'; ctx.lineWidth=1; ctx.stroke();
-    ctx.save(); ctx.translate(cx,cy); ctx.rotate(start+ang/2); ctx.textAlign='right'; ctx.fillStyle=textColor; ctx.font='bold 12px sans-serif';
-    if(ang > 0.2) ctx.fillText(item.name.length>6?item.name.slice(0,6)+'...':item.name, r-15, 4);
+    ctx.strokeStyle = 'rgba(128,128,128,0.1)'; ctx.lineWidth=1; ctx.stroke();
+    ctx.save(); ctx.translate(cx,cy); ctx.rotate(start+ang/2); ctx.textAlign='right'; ctx.fillStyle=textColor; ctx.font='bold 11px sans-serif';
+    if(ang > 0.2) ctx.fillText(item.name.length>5?item.name.slice(0,5)+'...':item.name, r-12, 4);
     ctx.restore(); start += ang;
   });
-  ctx.beginPath(); ctx.arc(cx,cy,20,0,Math.PI*2); ctx.fillStyle=getComputedStyle(document.body).backgroundColor; ctx.fill(); ctx.strokeStyle='rgba(128,128,128,0.3)'; ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx,cy,16,0,Math.PI*2); ctx.fillStyle=getComputedStyle(document.body).backgroundColor; ctx.fill(); ctx.strokeStyle='rgba(128,128,128,0.2)'; ctx.stroke();
 }
 
 function spin() {
@@ -925,7 +921,7 @@ function showResultCard(w) {
   for(let i=0; i<40; i++) {
     fx.particles.push({
       x: innerWidth/2 + (Math.random()-0.5)*200, y: innerHeight/2,
-      r: Math.random()*4+2, vy: -(Math.random()*5+2), vx: (Math.random()-0.5)*4,
+      r: Math.random()*3+2, vy: -(Math.random()*5+2), vx: (Math.random()-0.5)*4,
       rot: Math.random()*Math.PI, vr: (Math.random()-0.5)*0.2, a: 1, 
       hue: Math.random()*360
     });
@@ -948,17 +944,21 @@ function renderTheater() {
   if(!state.theater.length) { list.innerHTML = '<div class="empty">还没有小剧场</div>'; return; }
   state.theater.forEach(t => {
     const el = document.createElement('div'); el.className = 'theater-item';
+    
+    // 拼接完整文本用于展示
+    const fullText = (t.prefix||'') + t.content + (t.suffix||'');
+    
     el.innerHTML = `
       <div class="theater-title">${esc(t.title)}</div>
-      <div class="theater-body">${esc(t.content)}</div>
+      <div class="theater-body">${esc(fullText)}</div>
       <div class="theater-actions">
-        <button class="t-copy">复制</button>
+        <button class="t-copy">复制完整版</button>
         <button class="t-rep">替换</button>
         <button class="t-edit">编辑</button>
         <button class="t-del" style="color:var(--danger)">删除</button>
       </div>
     `;
-    el.querySelector('.t-copy').onclick = () => { navigator.clipboard.writeText(t.content); beep(880,0.05); };
+    el.querySelector('.t-copy').onclick = () => { navigator.clipboard.writeText(fullText); beep(880,0.05); };
     el.querySelector('.t-rep').onclick = () => repTheater(t);
     el.querySelector('.t-edit').onclick = () => editTheater(t);
     el.querySelector('.t-del').onclick = () => { if(confirm('删除?')) { state.theater = state.theater.filter(x=>x.id!==t.id); save(); renderTheater(); } };
@@ -966,22 +966,31 @@ function renderTheater() {
   });
 }
 function editTheater(t) {
-  const isNew = !t, data = t || {title:'', content:''};
-  openModal(isNew?'新建小剧场':'编辑', `
+  const isNew = !t, data = t || {title:'', prefix:'', content:'', suffix:''};
+  openModal(isNew?'新建小剧场':'编辑小剧场', `
     <input type="text" id="t-t" placeholder="标题" value="${esc(data.title)}">
-    <textarea id="t-c" placeholder="正文...">${esc(data.content)}</textarea>
-    <div class="modal-actions"><button class="action-btn" data-close>取消</button><button class="action-btn primary" id="t-s">保存</button></div>
+    <div class="section-label">前置固定文字</div>
+    <textarea id="t-p" placeholder="此处文字将自动拼在正文前面..." style="min-height:60px">${esc(data.prefix||'')}</textarea>
+    <div class="section-label">正文 (核心编辑区)</div>
+    <textarea id="t-c" placeholder="正文..." style="min-height:100px">${esc(data.content)}</textarea>
+    <div class="section-label">后置固定文字</div>
+    <textarea id="t-s" placeholder="此处文字将自动拼在正文后面..." style="min-height:60px">${esc(data.suffix||'')}</textarea>
+    <div class="modal-actions"><button class="action-btn" data-close>取消</button><button class="action-btn primary" id="t-sv">保存</button></div>
   `, m => {
-    m.querySelector('#t-s').onclick = () => {
-      const title = m.querySelector('#t-t').value.trim(), content = m.querySelector('#t-c').value;
-      if(!title||!content) return alert('都要填');
-      if(isNew) state.theater.unshift({id:uid(), title, content});
-      else { t.title=title; t.content=content; }
+    m.querySelector('#t-sv').onclick = () => {
+      const title = m.querySelector('#t-t').value.trim();
+      const prefix = m.querySelector('#t-p').value;
+      const content = m.querySelector('#t-c').value;
+      const suffix = m.querySelector('#t-s').value;
+      if(!title) return alert('要填标题');
+      if(isNew) state.theater.unshift({id:uid(), title, prefix, content, suffix});
+      else { t.title=title; t.prefix=prefix; t.content=content; t.suffix=suffix; }
       save(); renderTheater(); closeModal();
     };
   });
 }
 function repTheater(t) {
+  const fullText = (t.prefix||'') + t.content + (t.suffix||'');
   openModal('查找替换', `
     <div class="quick-tags">
       <div class="q-tag" onclick="document.getElementById('r-f').value='user'">填充: user</div>
@@ -996,7 +1005,7 @@ function repTheater(t) {
     m.querySelector('#r-go').onclick = () => {
       const f = m.querySelector('#r-f').value, r = m.querySelector('#r-r').value;
       if(!f) return alert('请输入查找内容');
-      const res = t.content.split(f).join(r), area = m.querySelector('#r-prev');
+      const res = fullText.split(f).join(r), area = m.querySelector('#r-prev');
       area.innerHTML = `
         <div class="section-label">预览 (复制后销毁)</div>
         <div class="preview-box">${esc(res)}</div>

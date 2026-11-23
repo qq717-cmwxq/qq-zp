@@ -221,6 +221,7 @@ main {
 .card-info { flex: 1; min-width: 0; }
 .card-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
+/* 卡片头部展示区 */
 .card-meta { display: flex; align-items: center; gap: 6px; font-size: 10px; color: var(--text-sub); overflow: hidden; width: 100%; }
 .meta-group { 
   display: inline-flex; align-items: center; padding: 2px 6px; border-radius: 4px;
@@ -231,6 +232,16 @@ main {
 .meta-tags::-webkit-scrollbar { display: none; }
 .meta-tag { background: var(--glass-highlight); padding: 2px 6px; border-radius: 4px; white-space: nowrap; }
 .meta-tag::before { content: "#"; opacity: 0.5; margin-right: 1px; }
+
+/* 新增：头部显示包含角色的样式 */
+.related-tags { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; flex: 0 1 auto; padding-bottom: 2px; }
+.related-tags::-webkit-scrollbar { display: none; }
+.related-tag { 
+  background: rgba(128, 128, 128, 0.15); 
+  padding: 2px 6px; border-radius: 4px; white-space: nowrap; 
+  color: var(--text-main); border: 1px solid var(--glass-border);
+  display: flex; align-items: center; gap: 2px;
+}
 
 .card-body { display: none; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--glass-border); }
 .card.open .card-body { display: block; animation: fadeIn 0.3s; }
@@ -354,7 +365,7 @@ input:checked + .slider:before { transform: translateX(18px); background: var(--
 .q-tag { padding: 6px 10px; border-radius: 6px; background: var(--glass-highlight); border: 1px solid var(--glass-border); font-size: 12px; cursor: pointer; user-select: none; }
 .q-tag:active { background: var(--text-sub); color: var(--bg-base); }
 
-/* 新增：包含角色输入框 */
+/* 包含角色输入框 */
 .related-input {
   width: 100%; padding: 8px 10px; border-radius: 8px;
   background: var(--glass-highlight); border: 1px solid var(--glass-border);
@@ -674,7 +685,11 @@ function renderCard(card) {
   
   let groupHtml = card.group ? `<span class="meta-group">${esc(card.group)}</span>` : '';
   let tagsHtml = (card.tags||[]).length ? `<div class="meta-tags">${(card.tags||[]).map(t=>`<span class="meta-tag">${esc(t)}</span>`).join('')}</div>` : '';
-  let jlCount = `<span>${card.jsonls.length} 个文件</span>`;
+  
+  // 头部包含角色展示
+  let relatedHtml = (card.related||[]).length ? `<div class="related-tags">${(card.related||[]).map(r=>`<span class="related-tag">👤 ${esc(r)}</span>`).join('')}</div>` : '';
+  
+  let jlCount = `<span style="margin-left:auto; flex-shrink:0;">${card.jsonls.length} 个文件</span>`;
 
   el.innerHTML = `
     <div class="card-head">
@@ -682,8 +697,10 @@ function renderCard(card) {
       <div class="card-info">
         <div class="card-title">${esc(card.name)}</div>
         <div class="card-meta">
-          ${groupHtml}${tagsHtml}
-          ${(!card.group && !(card.tags||[]).length) ? jlCount : ''}
+          ${groupHtml}
+          ${tagsHtml}
+          ${relatedHtml}
+          ${(!card.group && !(card.tags||[]).length && !(card.related||[]).length) ? `<span>${card.jsonls.length} 个文件</span>` : ''}
         </div>
       </div>
     </div>
@@ -713,18 +730,19 @@ function renderCard(card) {
     </div>
   `;
   
-  // 无箭头，依然可以点击头部展开
   el.querySelector('.card-head').onclick = () => el.classList.toggle('open');
   
   const ta = el.querySelector('.card-note');
   ta.oninput = () => { card.note = ta.value; save(); };
   
-  // 包含角色输入绑定
   const relatedInput = el.querySelector('.related-field');
   relatedInput.oninput = () => {
     card.related = relatedInput.value.split(',').map(s=>s.trim()).filter(Boolean);
     save();
   };
+  // 失去焦点或回车时重新渲染头部
+  relatedInput.onblur = () => renderCards();
+  relatedInput.onkeydown = (e) => { if(e.key === 'Enter') { relatedInput.blur(); } };
 
   el.querySelector('.av-input').onchange = async e => { const f = e.target.files[0]; if(!f) return; card.avatar = await compressImg(f); save(); renderCards(); };
   el.querySelector('.dl-json').onclick = () => download(card.rawJson, card.name.replace(/[\\/:*?"<>|]/g,'_')+'.json');

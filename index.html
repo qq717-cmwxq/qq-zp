@@ -23,6 +23,13 @@
   --blur: blur(24px) saturate(180%);
   --radius: 24px;
   --safe-bottom: env(safe-area-inset-bottom, 20px);
+  
+  /* 转盘专属颜色 */
+  --wheel-1: rgba(255,255,255,0.15);
+  --wheel-2: rgba(255,255,255,0.05);
+  --wheel-3: rgba(255,255,255,0.1);
+  --wheel-4: rgba(255,255,255,0.02);
+  --wheel-text: #fff;
 }
 [data-theme="light"]{
   /* 极简黑白灰 Ins 风浅色模式 */
@@ -30,13 +37,20 @@
   --bg-gradient: radial-gradient(circle at 0% 0%, #ffffff 0%, #f2f2f7 50%),
                  radial-gradient(circle at 100% 100%, #e5e5ea 0%, transparent 50%);
   --glass-bg: rgba(255, 255, 255, 0.65);
-  --glass-border: rgba(0, 0, 0, 0.06);
-  --glass-highlight: rgba(0, 0, 0, 0.02);
+  --glass-border: rgba(0, 0, 0, 0.08);
+  --glass-highlight: rgba(0, 0, 0, 0.03);
   --text-main: #1c1c1e;
   --text-sub: #8e8e93;
   --text-muted: #c7c7cc;
   --accent: #000000;
   --danger: #ff3b30;
+  
+  /* 转盘专属颜色 */
+  --wheel-1: rgba(0,0,0,0.15);
+  --wheel-2: rgba(0,0,0,0.05);
+  --wheel-3: rgba(0,0,0,0.1);
+  --wheel-4: rgba(0,0,0,0.02);
+  --wheel-text: #1c1c1e;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -51,9 +65,8 @@ body {
   transition: background 0.4s, color 0.4s;
 }
 
-#fxCanvas { position: fixed; inset: 0; pointer-events: none; z-index: 1; }
+#fxCanvas { position: fixed; inset: 0; pointer-events: none; z-index: 99; }
 
-/* 顶部极简栏 */
 header {
   position: sticky; top: 0; z-index: 10;
   padding: 16px 20px;
@@ -76,7 +89,6 @@ select.fx-select {
   font-size: 13px; outline: none; backdrop-filter: var(--blur); appearance: none;
 }
 
-/* 主体内容区 */
 main {
   padding: 20px 16px calc(100px + var(--safe-bottom));
   max-width: 800px; margin: 0 auto;
@@ -86,7 +98,6 @@ main {
 .page.active { display: block; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-/* 底部悬浮导航 (手机专属) */
 .bottom-nav {
   position: fixed; bottom: 0; left: 0; right: 0; z-index: 20;
   display: flex; justify-content: space-around; align-items: center;
@@ -105,7 +116,6 @@ main {
 .nav-item svg { width: 22px; height: 22px; fill: currentColor; }
 .nav-item.active { color: var(--text-main); background: var(--glass-highlight); }
 
-/* 通用毛玻璃面板 */
 .glass-panel {
   background: var(--glass-bg);
   backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
@@ -113,9 +123,7 @@ main {
   border-radius: var(--radius);
   box-shadow: 0 8px 32px rgba(0,0,0,0.15);
 }
-[data-theme="light"] .glass-panel { box-shadow: 0 8px 32px rgba(0,0,0,0.05); }
 
-/* 工具栏 / 搜索 */
 .toolbar { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
 .search-box {
   width: 100%; padding: 14px 18px; border-radius: 16px;
@@ -140,7 +148,7 @@ main {
 .action-btn.primary { background: var(--text-main); color: var(--bg-base); border: none; }
 .action-btn:active { transform: scale(0.96); }
 
-/* 角色卡列表 (手机上单列) */
+/* 角色卡列表 */
 .cards-list { display: flex; flex-direction: column; gap: 12px; }
 .card {
   background: var(--glass-bg); backdrop-filter: var(--blur); -webkit-backdrop-filter: var(--blur);
@@ -156,9 +164,22 @@ main {
 }
 .avatar img { width: 100%; height: 100%; object-fit: cover; }
 .card-info { flex: 1; min-width: 0; }
-.card-title { font-size: 16px; font-weight: 600; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.card-meta { display: flex; gap: 6px; font-size: 11px; color: var(--text-sub); flex-wrap: wrap; }
-.tag { background: var(--glass-highlight); padding: 2px 8px; border-radius: 6px; }
+.card-title { font-size: 16px; font-weight: 600; margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* 分组和标签区分 */
+.card-meta { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; font-size: 11px; color: var(--text-sub); }
+.meta-group { 
+  display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 6px;
+  border: 1px solid var(--glass-border); color: var(--text-main); background: transparent;
+}
+.meta-group::before { content: "📁"; font-size: 10px; }
+.meta-tags { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; }
+.meta-tag { 
+  background: var(--glass-highlight); padding: 2px 6px; border-radius: 4px; 
+}
+.meta-tag::before { content: "#"; opacity: 0.5; margin-right: 1px; }
+.meta-divider { width: 1px; height: 10px; background: var(--glass-border); }
+
 .arrow { color: var(--text-muted); transition: 0.3s; font-size: 12px; }
 .card.open .arrow { transform: rotate(180deg); }
 
@@ -176,18 +197,16 @@ textarea.note-input {
   background: transparent; border: 1px solid var(--glass-border);
   color: var(--text-main); cursor: pointer;
 }
-.jsonl-block { margin-top: 12px; padding: 12px; border-radius: 12px; background: rgba(0,0,0,0.1); border: 1px solid var(--glass-border); }
-[data-theme="light"] .jsonl-block { background: rgba(255,255,255,0.4); }
-.jsonl-header { display: flex; justify-content: space-between; align-items: center; font-size: 12px; margin-bottom: 10px; color: var(--text-sub); }
-.jsonl-header button { border: none; background: none; color: var(--danger); font-size: 12px; }
-.record-row { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; border-bottom: 1px dashed var(--glass-border); padding-bottom: 12px; }
-.record-row:last-child { margin-bottom: 0; border-bottom: none; padding-bottom: 0; }
-.record-raw { font-size: 12px; font-family: monospace; color: var(--text-sub); word-break: break-all; }
-.record-note { min-height: 40px !important; padding: 8px !important; font-size: 12px !important; }
 
-/* 转盘页 (手机适配) */
+/* 修复后的 JSONL 区块 */
+.jsonl-block { margin-top: 12px; padding: 12px; border-radius: 12px; background: var(--glass-highlight); border: 1px solid var(--glass-border); }
+.jsonl-header { display: flex; justify-content: space-between; align-items: center; font-size: 13px; margin-bottom: 10px; font-weight: 500; word-break: break-all; }
+.jsonl-header span { flex: 1; margin-right: 10px; }
+.jsonl-header button { border: none; background: none; color: var(--danger); font-size: 12px; white-space: nowrap; padding: 4px; }
+
+/* 转盘页面 */
 .wheel-container { display: flex; flex-direction: column; align-items: center; gap: 20px; }
-.wheel-wrap { position: relative; width: 100%; aspect-ratio: 1; max-width: 400px; margin: 0 auto; }
+.wheel-wrap { position: relative; width: 100%; aspect-ratio: 1; max-width: 380px; margin: 0 auto; }
 #wheelCanvas { width: 100%; height: 100%; display: block; }
 .wheel-pointer {
   position: absolute; top: -10px; left: 50%; transform: translateX(-50%);
@@ -198,8 +217,33 @@ textarea.note-input {
   width: 80%; max-width: 300px; padding: 16px; border-radius: 20px; margin-top: 10px;
   background: var(--text-main); color: var(--bg-base); border: none;
   font-size: 18px; font-weight: 600; letter-spacing: 0.1em; cursor: pointer;
-  box-shadow: 0 10px 30px rgba(255,255,255,0.1);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1); transition: 0.2s;
 }
+.spin-btn:active { transform: scale(0.95); }
+.spin-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* 抽奖结果弹窗 */
+.result-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(8px); z-index: 90;
+  display: flex; align-items: center; justify-content: center; flex-direction: column; padding: 20px;
+  animation: fadeIn 0.3s;
+}
+.result-card {
+  background: var(--glass-bg); backdrop-filter: var(--blur);
+  border: 1px solid var(--glass-border); border-radius: 32px; padding: 30px;
+  display: flex; flex-direction: column; align-items: center; gap: 16px;
+  animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 20px 50px rgba(0,0,0,0.2); width: 100%; max-width: 320px;
+}
+@keyframes popIn { from { transform: scale(0.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.result-card .avatar { width: 100px; height: 100px; font-size: 40px; box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
+.result-card h2 { font-size: 22px; font-weight: 700; margin-top: 8px; letter-spacing: 0.05em; }
+.result-card p { color: var(--text-sub); font-size: 13px; margin-bottom: 12px; }
+.result-close { 
+  background: var(--text-main); color: var(--bg-base); border: none; padding: 12px 30px; 
+  border-radius: 30px; font-size: 15px; font-weight: 600; cursor: pointer;
+}
+
 .wheel-settings { width: 100%; margin-top: 20px; padding: 16px; }
 .settings-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--glass-border); font-size: 14px; }
 .settings-row:last-child { border-bottom: none; }
@@ -231,7 +275,6 @@ input:checked + .slider:before { transform: translateX(20px); background: var(--
 .modal-actions { display: flex; gap: 12px; justify-content: flex-end; margin-top: 20px; }
 .preview-box { padding: 12px; border-radius: 12px; background: var(--glass-highlight); font-size: 13px; line-height: 1.6; max-height: 200px; overflow-y: auto; white-space: pre-wrap; margin-bottom: 12px; }
 
-/* 空提示 */
 .empty { text-align: center; color: var(--text-sub); padding: 60px 20px; font-size: 14px; }
 </style>
 </head>
@@ -261,7 +304,7 @@ input:checked + .slider:before { transform: translateX(20px); background: var(--
           <option value="created">按最新</option>
           <option value="name">按名字</option>
         </select>
-        <label class="action-btn" style="flex-shrink:0">导入 JSON<input type="file" id="importJson" accept=".json" hidden></label>
+        <label class="action-btn" style="flex-shrink:0">导入 JSON<input type="file" id="importJson" accept=".json" multiple hidden></label>
         <button id="newCardBtn" class="action-btn" style="flex-shrink:0">新建</button>
       </div>
     </div>
@@ -275,7 +318,7 @@ input:checked + .slider:before { transform: translateX(20px); background: var(--
         <canvas id="wheelCanvas"></canvas>
         <div class="wheel-pointer"></div>
       </div>
-      <button id="spinBtn" class="spin-btn">抽 取</button>
+      <button id="spinBtn" class="spin-btn">开 始 抽 取</button>
       
       <div class="glass-panel wheel-settings">
         <div class="settings-row">
@@ -381,7 +424,7 @@ function compressImg(f) { return new Promise((res, rej) => {
 });}
 
 // ---------- Theme & FX ----------
-function applyTheme() { document.documentElement.dataset.theme = state.theme; }
+function applyTheme() { document.documentElement.dataset.theme = state.theme; drawWheel(); }
 $('#themeBtn').onclick = () => { state.theme = state.theme === 'dark' ? 'light' : 'dark'; applyTheme(); save(); };
 
 let audioCtx = null;
@@ -396,22 +439,50 @@ function beep(freq=880, dur=0.08, type='sine') {
 }
 function winSound() { beep(660,0.1); setTimeout(()=>beep(880,0.12),100); setTimeout(()=>beep(1100,0.2),220); }
 
+// 修复后的特效系统
 const fx = {
   canvas: null, ctx: null, particles: [], type: 'none',
-  init() { this.canvas = $('#fxCanvas'); this.ctx = this.canvas.getContext('2d'); this.resize(); window.onresize = () => this.resize(); this.loop(); },
-  resize() { const dpr = window.devicePixelRatio||1; this.canvas.width = innerWidth*dpr; this.canvas.height = innerHeight*dpr; this.canvas.style.width = innerWidth+'px'; this.canvas.style.height = innerHeight+'px'; this.ctx.scale(dpr,dpr); },
-  setType(t) { this.type = t; this.particles = []; if(t==='none') return; const c = t==='rain'?80:t==='snow'?50:30; for(let i=0;i<c;i++) this.particles.push(this.spawn()); },
-  spawn() { const w = innerWidth, h = innerHeight;
-    if(this.type==='snow') return {x:Math.random()*w, y:Math.random()*-h, r:Math.random()*2+1, vy:Math.random()*0.5+0.3, vx:(Math.random()-0.5)*0.2, a:Math.random()*0.5+0.3, p:Math.random()*Math.PI*2};
-    if(this.type==='rain') return {x:Math.random()*w, y:Math.random()*-h, l:Math.random()*15+8, vy:Math.random()*8+8, a:Math.random()*0.2+0.1};
-    return {x:Math.random()*w, y:Math.random()*-h, r:Math.random()*3+2, vy:Math.random()*0.8+0.3, vx:(Math.random()-0.5)*0.6, rot:Math.random()*Math.PI*2, vr:(Math.random()-0.5)*0.05, a:Math.random()*0.4+0.2, hue:Math.random()*40+330};
+  init() { this.canvas = $('#fxCanvas'); this.ctx = this.canvas.getContext('2d'); 
+    window.onresize = () => this.resize(); this.resize(); this.loop(); },
+  resize() { 
+    const dpr = window.devicePixelRatio||1; 
+    this.canvas.width = innerWidth*dpr; this.canvas.height = innerHeight*dpr; 
+    this.canvas.style.width = innerWidth+'px'; this.canvas.style.height = innerHeight+'px'; 
+    this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   },
-  loop() { if(!this.ctx) return; const ctx = this.ctx, w = innerWidth, h = innerHeight; ctx.clearRect(0,0,w,h);
-    if(this.type !== 'none') { this.particles.forEach(p => {
-      if(this.type === 'snow') { p.p+=0.01; p.x+=Math.sin(p.p)*0.3+p.vx; p.y+=p.vy; if(p.y>h+5){p.y=-5;p.x=Math.random()*w;} ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fillStyle=`rgba(255,255,255,${p.a})`; ctx.fill(); }
-      else if(this.type === 'rain') { p.y+=p.vy; p.x+=1; if(p.y>h+10){p.y=-10;p.x=Math.random()*w;} ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(p.x-1,p.y+p.l); ctx.strokeStyle=`rgba(200,220,255,${p.a})`; ctx.lineWidth=1; ctx.stroke(); }
-      else { p.y+=p.vy; p.x+=Math.sin(p.y*0.01)*0.5+p.vx; p.rot+=p.vr; if(p.y>h+10){p.y=-10;p.x=Math.random()*w;} ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot); ctx.beginPath(); ctx.ellipse(0,0,p.r,p.r*0.6,0,0,Math.PI*2); ctx.fillStyle=`hsla(${p.hue},60%,80%,${p.a})`; ctx.fill(); ctx.restore(); }
-    });}
+  setType(t) { this.type = t; this.particles = []; if(t==='none') return; 
+    const c = t==='rain'?80:t==='snow'?50:30; 
+    for(let i=0;i<c;i++) this.particles.push(this.spawn(true)); 
+  },
+  spawn(randomY=false) { const w = innerWidth, h = innerHeight;
+    const y = randomY ? Math.random()*h : -20;
+    if(this.type==='snow') return {x:Math.random()*w, y:y, r:Math.random()*2+1, vy:Math.random()*0.5+0.3, vx:(Math.random()-0.5)*0.2, a:Math.random()*0.5+0.3, p:Math.random()*Math.PI*2};
+    if(this.type==='rain') return {x:Math.random()*w, y:y, l:Math.random()*15+8, vy:Math.random()*8+8, a:Math.random()*0.2+0.1};
+    return {x:Math.random()*w, y:y, r:Math.random()*4+3, vy:Math.random()*0.8+0.3, vx:(Math.random()-0.5)*0.6, rot:Math.random()*Math.PI*2, vr:(Math.random()-0.5)*0.05, a:Math.random()*0.5+0.3, hue:Math.random()*40+330};
+  },
+  loop() { 
+    if(!this.ctx) return; const ctx = this.ctx, w = innerWidth, h = innerHeight; 
+    ctx.clearRect(0,0,w,h);
+    if(this.type !== 'none') { 
+      this.particles.forEach((p, idx) => {
+        if(this.type === 'snow') { 
+          p.p+=0.01; p.x+=Math.sin(p.p)*0.3+p.vx; p.y+=p.vy; 
+          if(p.y>h+10){ this.particles[idx]=this.spawn(); } 
+          ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fillStyle=`rgba(255,255,255,${p.a})`; ctx.fill(); 
+        }
+        else if(this.type === 'rain') { 
+          p.y+=p.vy; p.x+=1; if(p.y>h+10){ this.particles[idx]=this.spawn(); } 
+          ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(p.x-1,p.y+p.l); ctx.strokeStyle=`rgba(200,220,255,${p.a})`; ctx.lineWidth=1; ctx.stroke(); 
+        }
+        else { 
+          p.y+=p.vy; p.x+=Math.sin(p.y*0.01)*0.5+p.vx; p.rot+=p.vr; 
+          if(p.y>h+20){ this.particles[idx]=this.spawn(); } 
+          ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot); 
+          ctx.beginPath(); ctx.ellipse(0,0,p.r,p.r*0.6,0,0,Math.PI*2); 
+          ctx.fillStyle=`hsla(${p.hue},60%,80%,${p.a})`; ctx.fill(); ctx.restore(); 
+        }
+      });
+    }
     requestAnimationFrame(() => this.loop());
   }
 };
@@ -440,7 +511,7 @@ function renderCards() {
   $('#emptyHint').hidden = list.length > 0;
   grid.innerHTML = '';
   list.forEach(c => grid.appendChild(renderCard(c)));
-  // render groups
+  
   const sel = $('#groupFilter'), cur = sel.value;
   const groups = [...new Set(state.cards.map(c => c.group).filter(Boolean))];
   sel.innerHTML = '<option value="">全部分组</option>' + groups.map(g=>`<option value="${esc(g)}">${esc(g)}</option>`).join('');
@@ -449,15 +520,20 @@ function renderCards() {
 function renderCard(card) {
   const el = document.createElement('div'); el.className = 'card'; el.dataset.id = card.id;
   const av = card.avatar ? `<img src="${card.avatar}">` : esc(card.name.slice(0,1));
+  
+  let groupHtml = card.group ? `<span class="meta-group">${esc(card.group)}</span>` : '';
+  let tagsHtml = (card.tags||[]).length ? `<div class="meta-tags">${(card.tags||[]).map(t=>`<span class="meta-tag">${esc(t)}</span>`).join('')}</div>` : '';
+  let divider = (card.group && (card.tags||[]).length) ? `<div class="meta-divider"></div>` : '';
+  let jlCount = `<span>${card.jsonls.length} 个文件</span>`;
+
   el.innerHTML = `
     <div class="card-head">
       <div class="avatar">${av}</div>
       <div class="card-info">
         <div class="card-title">${esc(card.name)}</div>
         <div class="card-meta">
-          ${card.group?`<span class="tag">${esc(card.group)}</span>`:''}
-          ${(card.tags||[]).map(t=>`<span class="tag">${esc(t)}</span>`).join('')}
-          <span>${card.jsonls.length} 条 JSONL</span>
+          ${groupHtml}${divider}${tagsHtml}
+          ${(!card.group && !(card.tags||[]).length) ? jlCount : ''}
         </div>
       </div>
       <div class="arrow">▼</div>
@@ -486,45 +562,36 @@ function renderCard(card) {
   renderJL(el.querySelector('.jl-area'), card);
   return el;
 }
+
+// JSONL 备注逻辑大改版（针对文件整体）
 function renderJL(container, card) {
   container.innerHTML = '';
   card.jsonls.forEach(jl => {
     const block = document.createElement('div'); block.className = 'jsonl-block';
     block.innerHTML = `
       <div class="jsonl-header">
-        <span>📄 ${esc(jl.filename)} (${jl.records.length})</span>
+        <span>📄 ${esc(jl.filename)}</span>
         <span><button class="dl-jl">下载</button><button class="del-jl" style="margin-left:10px">删除</button></span>
       </div>
-      <div class="records"></div>
+      <textarea class="note-input" placeholder="给这个文件写个备注…" style="min-height: 40px; margin-bottom: 0; font-size: 12px;">${esc(jl.note||'')}</textarea>
     `;
-    const recWrap = block.querySelector('.records');
-    jl.records.forEach((r,i) => {
-      const row = document.createElement('div'); row.className = 'record-row';
-      row.innerHTML = `
-        <div class="record-raw">${i+1}. ${esc(r.raw.slice(0,50))}${r.raw.length>50?'...':''}</div>
-        <textarea class="note-input record-note" placeholder="备注…">${esc(r.note||'')}</textarea>
-      `;
-      const ta = row.querySelector('.record-note');
-      ta.oninput = () => { r.note = ta.value; save(); };
-      recWrap.appendChild(row);
-    });
+    const ta = block.querySelector('textarea');
+    ta.oninput = () => { jl.note = ta.value; save(); };
     block.querySelector('.dl-jl').onclick = () => download(jl.rawText, jl.filename, 'application/jsonl');
     block.querySelector('.del-jl').onclick = () => { if(confirm('删除该文件?')) { card.jsonls = card.jsonls.filter(x=>x.id!==jl.id); save(); renderCards(); } };
     container.appendChild(block);
   });
 }
 async function importJL(card, file) {
-  const txt = await readFile(file); const lines = txt.split(/\r?\n/).filter(l=>l.trim());
-  const records = []; let bad = 0;
-  lines.forEach(l => { try { JSON.parse(l); records.push({raw:l, note:''}); } catch { bad++; } });
-  if(bad) alert(`跳过 ${bad} 行非标准 JSON`);
-  card.jsonls.push({ id: uid(), filename: file.name, rawText: txt, records });
+  const txt = await readFile(file);
+  // 不再解析内容行，只存文件本身和备注
+  card.jsonls.push({ id: uid(), filename: file.name, rawText: txt, note: '' });
   save(); renderCards();
 }
 function editMeta(card) {
   openModal('分组 / 标签', `
     <input type="text" id="m-g" placeholder="分组" value="${esc(card.group||'')}">
-    <input type="text" id="m-t" placeholder="标签 (逗号分隔)" value="${esc((card.tags||[]).join(','))}">
+    <input type="text" id="m-t" placeholder="标签 (用逗号分隔)" value="${esc((card.tags||[]).join(','))}">
     <div class="modal-actions"><button class="action-btn" data-close>取消</button><button class="action-btn primary" id="m-s">保存</button></div>
   `, m => {
     m.querySelector('#m-s').onclick = () => {
@@ -555,6 +622,7 @@ $('#sortSelect').onchange = renderCards;
 // ---------- Wheel ----------
 let wheelAngle = 0, spinning = false;
 function getWheelItems() { return state.cards.filter(c => c.wheelOn !== false && !(state.noRepeat && state.drawn.includes(c.id))); }
+
 function renderWheel() {
   const list = $('#wheelList'); list.innerHTML = '';
   if(!state.cards.length) list.innerHTML = '<div style="font-size:12px;color:var(--text-sub);padding:10px 0">暂无角色卡</div>';
@@ -572,55 +640,118 @@ function renderWheel() {
   });
   drawWheel();
 }
+
+// 修复浅色模式转盘看不见的问题
 function drawWheel() {
   const canvas = $('#wheelCanvas'); if(!canvas) return;
-  const size = canvas.clientWidth, dpr = window.devicePixelRatio||1;
+  const size = canvas.clientWidth; if(!size) return;
+  const dpr = window.devicePixelRatio||1;
   canvas.width = size*dpr; canvas.height = size*dpr;
   const ctx = canvas.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0); ctx.clearRect(0,0,size,size);
   const cx = size/2, cy = size/2, r = size/2-10;
   const items = getWheelItems();
+  
+  const cs = getComputedStyle(document.documentElement);
+  const c1 = cs.getPropertyValue('--wheel-1').trim(), c2 = cs.getPropertyValue('--wheel-2').trim();
+  const c3 = cs.getPropertyValue('--wheel-3').trim(), c4 = cs.getPropertyValue('--wheel-4').trim();
+  const textColor = cs.getPropertyValue('--wheel-text').trim();
+  const shades = [c1, c2, c3, c4];
+
   if(!items.length) {
-    ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.fillStyle='rgba(255,255,255,0.05)'; ctx.fill();
-    ctx.fillStyle='rgba(255,255,255,0.3)'; ctx.font='14px sans-serif'; ctx.textAlign='center'; ctx.fillText('请勾选参与角色', cx, cy); return;
+    ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.fillStyle=c2; ctx.fill();
+    ctx.fillStyle=textColor; ctx.globalAlpha=0.5; ctx.font='14px sans-serif'; ctx.textAlign='center'; ctx.fillText('请勾选参与角色', cx, cy); return;
   }
   const total = items.reduce((s,i)=>s+(i.weight||1),0); let start = wheelAngle;
   items.forEach((item,i) => {
     const ang = ((item.weight||1)/total)*Math.PI*2;
     ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,r,start,start+ang); ctx.closePath();
-    const shades = [0.15, 0.05, 0.1, 0.02, 0.12, 0.08];
-    ctx.fillStyle = `rgba(255,255,255,${shades[i%shades.length]})`; ctx.fill();
-    ctx.strokeStyle = 'rgba(255,255,255,0.1)'; ctx.lineWidth=1; ctx.stroke();
-    ctx.save(); ctx.translate(cx,cy); ctx.rotate(start+ang/2); ctx.textAlign='right'; ctx.fillStyle='rgba(255,255,255,0.85)'; ctx.font='12px sans-serif';
+    ctx.fillStyle = shades[i % shades.length]; ctx.fill();
+    ctx.strokeStyle = 'rgba(128,128,128,0.2)'; ctx.lineWidth=1; ctx.stroke();
+    ctx.save(); ctx.translate(cx,cy); ctx.rotate(start+ang/2); ctx.textAlign='right'; ctx.fillStyle=textColor; ctx.font='bold 12px sans-serif';
     if(ang > 0.2) ctx.fillText(item.name.length>6?item.name.slice(0,6)+'...':item.name, r-15, 4);
     ctx.restore(); start += ang;
   });
-  ctx.beginPath(); ctx.arc(cx,cy,20,0,Math.PI*2); ctx.fillStyle='#000'; ctx.fill(); ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.stroke();
+  ctx.beginPath(); ctx.arc(cx,cy,20,0,Math.PI*2); ctx.fillStyle=getComputedStyle(document.body).backgroundColor; ctx.fill(); ctx.strokeStyle='rgba(128,128,128,0.3)'; ctx.stroke();
 }
+
+// 提速的转盘 + 绝美结果弹窗
 function spin() {
   if(spinning) return; const items = getWheelItems();
   if(!items.length) return alert('没有可抽取的角色');
-  spinning = true; $('#wheelWrap').classList.add('spinning'); beep(220,0.05,'triangle');
+  
+  spinning = true; $('#spinBtn').disabled = true; 
+  const btn = $('#spinBtn'); btn.innerText = '抽取中...';
+  beep(220,0.05,'triangle');
+  
   const total = items.reduce((s,i)=>s+(i.weight||1),0);
   let rand = Math.random()*total, idx=0, acc=0;
   for(let i=0;i<items.length;i++) { acc+=(items[i].weight||1); if(rand<=acc){idx=i;break;} }
+  
   let off=0; for(let i=0;i<idx;i++) off+=((items[i].weight||1)/total)*Math.PI*2;
   const sliceAng = ((items[idx].weight||1)/total)*Math.PI*2, centerOff = off + sliceAng/2;
+  
+  // 提速：转5圈，2.8秒完成
   const target = -Math.PI/2 - centerOff + Math.PI*2*5;
-  const start = wheelAngle, dur = 4000, t0 = performance.now();
+  const start = wheelAngle, dur = 2800, t0 = performance.now();
   let lastBeep = 0;
-  function ease(t) { return 1 - Math.pow(1-t, 3); }
+  
+  // 结尾带有弹性的缓动
+  function easeOutBack(t) {
+    const c1 = 1.70158, c3 = c1 + 1;
+    return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
+  }
+  
   function frame(now) {
-    const t = Math.min(1, (now-t0)/dur); wheelAngle = start + (target-start)*ease(t); drawWheel();
-    if(t < 1) { if(now-lastBeep > (50+t*200)) { beep(1000,0.02,'square'); lastBeep=now; } requestAnimationFrame(frame); }
-    else {
-      spinning = false; $('#wheelWrap').classList.remove('spinning'); winSound();
-      const w = items[idx]; if(state.noRepeat) { state.drawn.push(w.id); save(); }
+    const t = Math.min(1, (now-t0)/dur); 
+    wheelAngle = start + (target-start)*easeOutBack(t); 
+    drawWheel();
+    if(t < 1) { 
+      if(now-lastBeep > (40+t*150)) { beep(1000,0.02,'square'); lastBeep=now; } 
+      requestAnimationFrame(frame); 
+    } else {
+      spinning = false; btn.disabled = false; btn.innerText = '开 始 抽 取';
+      winSound();
+      const w = items[idx]; 
+      if(state.noRepeat) { state.drawn.push(w.id); save(); }
       renderWheel();
-      alert(`🎉 抽中了：${w.name}`);
+      showResultCard(w); // 调用新的特效弹窗
     }
   }
   requestAnimationFrame(frame);
 }
+
+function showResultCard(w) {
+  const overlay = document.createElement('div');
+  overlay.className = 'result-overlay';
+  const av = w.avatar ? `<img src="${w.avatar}">` : esc(w.name.slice(0,1));
+  
+  overlay.innerHTML = `
+    <div class="result-card">
+      <div class="avatar">${av}</div>
+      <p>🎉 恭喜抽中</p>
+      <h2>${esc(w.name)}</h2>
+      <button class="result-close">收下结果</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  
+  // 伪撒花特效 (借用 fx 粒子系统)
+  const oldType = fx.type;
+  for(let i=0; i<40; i++) {
+    fx.particles.push({
+      x: innerWidth/2 + (Math.random()-0.5)*200, y: innerHeight/2,
+      r: Math.random()*4+2, vy: -(Math.random()*5+2), vx: (Math.random()-0.5)*4,
+      rot: Math.random()*Math.PI, vr: (Math.random()-0.5)*0.2, a: 1, 
+      hue: Math.random()*360
+    });
+  }
+  
+  overlay.querySelector('.result-close').onclick = () => {
+    overlay.style.animation = 'fadeOut 0.3s forwards';
+    setTimeout(() => overlay.remove(), 300);
+  };
+}
+
 $('#spinBtn').onclick = spin;
 $('#noRepeatToggle').onchange = e => { state.noRepeat = e.target.checked; save(); renderWheel(); };
 $('#soundToggle').onchange = e => { state.sound = e.target.checked; save(); };

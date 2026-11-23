@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Card Vault · 角色卡库</title>
+<style>
+:root{
+  --bg-0:#08080a; --bg-1:#0f0f12;
+  --glass:rgba(255,255,255,0.055); --glass-hover:rgba(255,255,255,0.09);
+  --glass-border:rgba(255,255,255,0.10);
+  --text-0:#f5f5f7; --text-1:#9a9aa0; --text-2:#5f5f66;
+  --accent:#fff; --danger:#ff6b6b;
+  --radius:22px; --blur:26px;
+  --shadow:0 8px 32px rgba(0,0,0,.35);
+}
+[data-theme="light"]{
+  --bg-0:#eef0f3; --bg-1:#f7f8fa;
+  --glass:rgba(255,255,255,.55); --glass-hover:rgba(255,255,255,.8);
+  --glass-border:rgba(0,0,0,.06);
+  --text-0:#111114; --text-1:#5f5f66; --text-2:#9a9aa0;
+  --accent:#000; --shadow:0 8px 32px rgba(0,0,0,.08);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  background:var(--bg-0); color:var(--text-0); min-height:100vh;
+  overflow-x:hidden;
+}
+#fxCanvas{position:fixed;inset:0;pointer-events:none;z-index:1}
+.bg-orb{position:fixed;border-radius:50%;filter:blur(120px);opacity:.35;z-index:0;pointer-events:none}
+.bg-orb-1{width:520px;height:520px;background:#ffffff22;top:-160px;left:-120px}
+.bg-orb-2{width:420px;height:420px;background:#ffffff15;bottom:-140px;right:-100px}
+.bg-orb-3{width:320px;height:320px;background:#ffffff12;top:40%;left:50%}
+[data-theme="light"] .bg-orb{opacity:.5}
+
+.topbar{
+  position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:16px;
+  padding:14px 24px;background:var(--glass);backdrop-filter:blur(var(--blur)) saturate(140%);
+  -webkit-backdrop-filter:blur(var(--blur)) saturate(140%);
+  border-bottom:1px solid var(--glass-border);
+}
+.brand{font-weight:300;letter-spacing:.35em;font-size:13px;color:var(--text-1)}
+.nav{display:flex;gap:4px;margin-left:12px}
+.nav button{
+  background:transparent;border:none;color:var(--text-1);padding:8px 14px;
+  border-radius:12px;font-size:13px;cursor:pointer;transition:.2s;
+}
+.nav button:hover{color:var(--text-0);background:var(--glass-hover)}
+.nav button.active{color:var(--text-0);background:var(--glass-hover)}
+.top-actions{margin-left:auto;display:flex;gap:8px;align-items:center}
+.mini-select{
+  background:var(--glass);border:1px solid var(--glass-border);color:var(--text-0);
+  padding:7px 10px;border-radius:10px;font-size:12px;outline:none;cursor:pointer;
+}
+.icon-btn{
+  background:var(--glass);border:1px solid var(--glass-border);color:var(--text-0);
+  width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:14px;
+}
+.icon-btn:hover{background:var(--glass-hover)}
+
+main{padding:28px 24px 60px;max-width:1400px;margin:0 auto;position:relative;z-index:2}
+.page{display:none;animation:fadeIn .35s ease}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+.glass{
+  background:var(--glass);backdrop-filter:blur(var(--blur)) saturate(140%);
+  -webkit-backdrop-filter:blur(var(--blur)) saturate(140%);
+  border:1px solid var(--glass-border);border-radius:var(--radius);
+  box-shadow:var(--shadow);
+}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:22px}
+.text-input{
+  flex:1;min-width:220px;background:var(--glass);border:1px solid var(--glass-border);
+  color:var(--text-0);padding:10px 14px;border-radius:12px;font-size:13px;outline:none;
+  backdrop-filter:blur(12px);
+}
+.text-input::placeholder{color:var(--text-2)}
+.text-input:focus{border-color:rgba(255,255,255,.3)}
+.primary-btn,.ghost-btn,.danger-btn,.file-btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  padding:10px 18px;border-radius:12px;font-size:13px;cursor:pointer;
+  border:1px solid var(--glass-border);transition:.2s;white-space:nowrap;
+}
+.primary-btn{background:var(--accent);color:var(--bg-0);border:none;font-weight:500}
+.primary-btn:hover{opacity:.88}
+.ghost-btn{background:var(--glass);color:var(--text-0);backdrop-filter:blur(12px)}
+.ghost-btn:hover{background:var(--glass-hover)}
+.ghost-btn.small{padding:6px 12px;font-size:12px}
+.danger-btn{background:transparent;color:var(--danger);border-color:rgba(255,107,107,.3)}
+.danger-btn:hover{background:rgba(255,107,107,.1)}
+.file-btn{background:var(--glass);color:var(--text-0);backdrop-filter:blur(12px)}
+.file-btn:hover{background:var(--glass-hover)}
+
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+.card{
+  background:var(--glass);backdrop-filter:blur(var(--blur)) saturate(140%);
+  -webkit-backdrop-filter:blur(var(--blur)) saturate(140%);
+  border:1px solid var(--glass-border);border-radius:var(--radius);
+  padding:16px;transition:.25s;box-shadow:var(--shadow);
+}
+.card:hover{background:var(--glass-hover);border-color:rgba(255,255,255,.18)}
+.card-head{display:flex;align-items:center;gap:14px;cursor:pointer}
+.avatar{
+  width:52px;height:52px;border-radius:50%;object-fit:cover;
+  border:1px solid var(--glass-border);background:var(--glass);flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;color:var(--text-2);font-size:20px;
+}
+.avatar img{width:100%;height:100%;border-radius:50%;object-fit:cover}
+.card-title{flex:1;min-width:0}
+.card-title h3{font-size:15px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card-title .meta{font-size:11px;color:var(--text-2);margin-top:3px;display:flex;gap:6px;flex-wrap:wrap}
+.tag{background:rgba(255,255,255,.08);padding:2px 8px;border-radius:6px;font-size:10px;color:var(--text-1)}
+.expand-arrow{transition:.3s;color:var(--text-2);font-size:14px}
+.card.open .expand-arrow{transform:rotate(180deg)}
+.card-body{display:none;margin-top:16px;padding-top:16px;border-top:1px solid var(--glass-border)}
+.card.open .card-body{display:block;animation:fadeIn .3s}
+.section-label{font-size:11px;color:var(--text-2);letter-spacing:.1em;margin-bottom:8px;text-transform:uppercase}
+.note-input{
+  width:100%;background:rgba(255,255,255,.04);border:1px solid var(--glass-border);
+  color:var(--text-0);padding:10px 12px;border-radius:10px;font-size:12px;resize:vertical;
+  font-family:inherit;outline:none;min-height:56px;
+}
+.note-input:focus{border-color:rgba(255,255,255,.25)}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;align-items:center}
+.tiny-btn{
+  background:transparent;border:1px solid var(--glass-border);color:var(--text-1);
+  padding:5px 10px;border-radius:8px;font-size:11px;cursor:pointer;transition:.2s;
+}
+.tiny-btn:hover{color:var(--text-0);background:var(--glass-hover)}
+.jsonl-block{margin-top:12px;padding:12px;background:rgba(0,0,0,.15);border-radius:12px;border:1px solid var(--glass-border)}
+[data-theme="light"] .jsonl-block{background:rgba(0,0,0,.04)}
+.jsonl-head{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:var(--text-1);margin-bottom:8px}
+.record{display:flex;gap:8px;margin-top:6px;align-items:flex-start}
+.record-idx{font-size:10px;color:var(--text-2);min-width:24px;padding-top:8px;font-family:monospace}
+.record-raw{font-size:11px;color:var(--text-2);padding-top:8px;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:monospace}
+.record-note{flex:1;min-height:36px;padding:6px 10px;font-size:12px}
+.empty-hint{text-align:center;color:var(--text-2);padding:60px 0;font-size:14px}
+
+.wheel-layout{display:grid;grid-template-columns:300px 1fr;gap:20px}
+@media(max-width:800px){.wheel-layout{grid-template-columns:1fr}}
+.wheel-side{padding:20px}
+.wheel-side h3{font-size:13px;font-weight:500;margin-bottom:14px;letter-spacing:.1em;color:var(--text-1)}
+.switch-row{display:flex;align-items:center;gap:10px;padding:8px 0;font-size:13px;cursor:pointer}
+.switch-row input{accent-color:var(--accent)}
+.wheel-list{margin:14px 0;max-height:400px;overflow-y:auto;display:flex;flex-direction:column;gap:6px}
+.wheel-item{
+  display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;
+  background:rgba(255,255,255,.04);font-size:12px;cursor:pointer;transition:.2s;
+}
+.wheel-item:hover{background:rgba(255,255,255,.08)}
+.wheel-item.off{opacity:.35}
+.wheel-item input[type=checkbox]{accent-color:var(--accent)}
+.wheel-item .w-input{
+  width:44px;background:rgba(0,0,0,.2);border:1px solid var(--glass-border);
+  color:var(--text-0);padding:3px 6px;border-radius:6px;font-size:11px;text-align:center;outline:none;
+}
+.wheel-main{padding:32px;display:flex;flex-direction:column;align-items:center;gap:22px}
+.wheel-wrap{position:relative;width:min(480px,80vw);aspect-ratio:1}
+#wheelCanvas{width:100%;height:100%;display:block}
+.wheel-pointer{
+  position:absolute;top:-8px;left:50%;transform:translateX(-50%);
+  width:0;height:0;border-left:12px solid transparent;border-right:12px solid transparent;
+  border-top:20px solid var(--text-0);filter:drop-shadow(0 0 8px rgba(255,255,255,.6));
+  z-index:3;transition:.2s;
+}
+.spinning .wheel-pointer{animation:pointerPulse .3s infinite alternate}
+@keyframes pointerPulse{to{filter:drop-shadow(0 0 16px rgba(255,255,255,.95))}}
+.wheel-result{
+  min-height:80px;display:flex;align-items:center;justify-content:center;
+  text-align:center;font-size:14px;
+}
+.result-card{
+  display:flex;align-items:center;gap:14px;padding:14px 24px;border-radius:18px;
+  background:var(--glass);border:1px solid var(--glass-border);
+  animation:resultPop .6s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes resultPop{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+.result-card .avatar{width:44px;height:44px}
+.result-card strong{font-size:16px;font-weight:500}
+
+.theater-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px}
+.theater-item{
+  background:var(--glass);backdrop-filter:blur(var(--blur));
+  border:1px solid var(--glass-border);border-radius:var(--radius);padding:18px;
+}
+.theater-item h4{font-size:14px;font-weight:500;margin-bottom:10px}
+.theater-body{font-size:12px;color:var(--text-1);line-height:1.7;white-space:pre-wrap;max-height:120px;overflow:hidden;margin-bottom:12px}
+.theater-actions{display:flex;gap:6px;flex-wrap:wrap}
+
+.settings-card{padding:26px;display:flex;flex-direction:column;gap:14px;max-width:500px}
+.settings-card h3{font-size:14px;font-weight:500;letter-spacing:.1em;color:var(--text-1)}
+
+.modal-bg{
+  position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);
+  z-index:100;display:flex;align-items:center;justify-content:center;padding:20px;
+  animation:fadeIn .2s;
+}
+.modal{
+  background:var(--bg-1);border:1px solid var(--glass-border);border-radius:24px;
+  padding:24px;max-width:600px;width:100%;max-height:85vh;overflow-y:auto;
+  box-shadow:0 24px 80px rgba(0,0,0,.6);
+  animation:modalIn .3s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes modalIn{from{transform:scale(.92);opacity:0}to{transform:scale(1);opacity:1}}
+.modal h3{font-size:16px;font-weight:500;margin-bottom:16px}
+.modal .text-input,.modal textarea{margin-bottom:12px;width:100%}
+.modal textarea{
+  background:rgba(255,255,255,.04);border:1px solid var(--glass-border);color:var(--text-0);
+  padding:12px;border-radius:12px;font-size:13px;resize:vertical;min-height:160px;
+  font-family:inherit;outline:none;line-height:1.6;
+}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px}
+.preview-box{
+  background:rgba(255,255,255,.04);border:1px solid var(--glass-border);border-radius:12px;
+  padding:14px;font-size:13px;line-height:1.7;white-space:pre-wrap;
+  max-height:300px;overflow-y:auto;margin-bottom:12px;
+}
+
+::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:4px}
+::-webkit-scrollbar-track{background:transparent}
+</style>
+</head>
+<body>
+<canvas id="fxCanvas"></canvas>
+<div class="bg-orb bg-orb-1"></div>
+<div class="bg-orb bg-orb-2"></div>
+<div class="bg-orb bg-orb-3"></div>
+
+<header class="topbar">
+  <div class="brand">CARD VAULT</div>
+  <nav class="nav">
+    <button data-page="cards" class="active">角色卡</button>
+    <button data-page="wheel">转盘</button>
+    <button data-page="theater">小剧场</button>
+    <button data-page="settings">设置</button>
+  </nav>
+  <div class="top-actions">
+    <select id="fxSelect" class="mini-select">
+      <option value="none">无特效</option>
+      <option value="snow">❄ 下雪</option>
+      <option value="rain">☂ 下雨</option>
+      <option value="petals">🌸 花瓣</option>
+    </select>
+    <button id="themeBtn" class="icon-btn" title="切换主题">◐</button>
+  </div>
+</header>
+
+<main>
+  <section id="page-cards" class="page active">
+    <div class="toolbar">
+      <input id="searchInput" class="text-input" placeholder="搜索名字 / 标签 / 备注">
+      <select id="groupFilter" class="mini-select"><option value="">全部分组</option></select>
+      <select id="sortSelect" class="mini-select">
+        <option value="created">按创建时间</option>
+        <option value="name">按名字</option>
+      </select>
+      <label class="file-btn">导入角色卡 JSON<input type="file" id="importJson" accept=".json" hidden></label>
+      <button id="newCardBtn" class="ghost-btn">手动新建</button>
+    </div>
+    <div id="cardsGrid" class="cards-grid"></div>
+    <div id="emptyHint" class="empty-hint" hidden>还没有角色卡，先导入一个 JSON 吧。</div>
+  </section>
+
+  <section id="page-wheel" class="page">
+    <div class="wheel-layout">
+      <div class="wheel-side glass">
+        <h3>参与抽取</h3>
+        <label class="switch-row"><input type="checkbox" id="noRepeatToggle"><span>不重复抽取</span></label>
+        <label class="switch-row"><input type="checkbox" id="soundToggle" checked><span>音效</span></label>
+        <div id="wheelList" class="wheel-list"></div>
+        <button id="resetDrawn" class="ghost-btn small">重置已抽</button>
+      </div>
+      <div class="wheel-main glass">
+        <div class="wheel-wrap" id="wheelWrap">
+          <canvas id="wheelCanvas"></canvas>
+          <div class="wheel-pointer"></div>
+        </div>
+        <button id="spinBtn" class="primary-btn">抽 取</button>
+        <div id="wheelResult" class="wheel-result"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="page-theater" class="page">
+    <div class="toolbar">
+      <button id="newTheaterBtn" class="primary-btn">+ 新建小剧场</button>
+    </div>
+    <div id="theaterList" class="theater-list"></div>
+  </section>
+
+  <section id="page-settings" class="page">
+    <div class="glass settings-card">
+      <h3>数据管理</h3>
+      <button id="exportAll" class="ghost-btn">导出全部备份 (JSON)</button>
+      <label class="file-btn">导入备份<input type="file" id="importAll" accept=".json" hidden></label>
+      <button id="clearAll" class="danger-btn">清空所有数据</button>
+    </div>
+  </section>
+</main>
+
+<div id="modalRoot"></div>
+
+<script>
+/* ===================== IndexedDB 封装 ===================== */
+const IDB = {
+  db: null,
+  open() {
+    return new Promise((resolve, reject) => {
+      const req = indexedDB.open('cardvault', 1);
+      req.onupgradeneeded = e => {
+        const db = e.target.result;
+        if (!db.objectStoreNames.contains('kv')) db.createObjectStore('kv');
+      };
+      req.onsuccess = e => { this.db = e.target.result; resolve(); };
+      req.onerror = e => reject(e);
+    });
+  },
+  get(key) {
+    return new Promise((resolve, reject) => {
+      const tx = this.db.transaction('kv', 'readonly');
+      const req = tx.objectStore('kv').get(key);
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+  },
+  set(key, val) {
+    return new Promise((resolve, reject) => {
+      const tx = this.db.transaction('kv', 'readwrite');
+      const req = tx.objectStore('kv').put(val, key);
+      req.onsuccess = () => resolve();
+      req.onerror = () => reject(req.error);
+    });
+  }
+};
+
+/* ===================== 状态 ===================== */
+let state = {
+  cards: [],
+  theater: [],
+  theme: 'dark',
+  fx: 'none',
+  noRepeat: false,
+  sound: true,
+  drawn: []
+};
+let saveTimer = null;
+function save() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => IDB.set('state', state), 250);
+}
+function uid() {
+  return Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+}
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+
+/* ===================== 工具：下载 / 读文件 ===================== */
+function download(text, filename, mime = 'application/json') {
+  const blob = new Blob([text], { type: mime + ';charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1500);
+}
+function readFileAsText(file) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onload = e => resolve(e.target.result);
+    r.onerror = reject;
+    r.readAsText(file);
+  });
+}
+function compressImage(file, maxSize = 256) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      let { width, height } = img;
+      const scale = Math.min(1, maxSize / Math.max(width, height));
+      width = Math.round(width * scale);
+      height = Math.round(height * scale);
+      const c = document.createElement('canvas');
+      c.width = width; c.height = height;
+      c.getContext('2d').drawImage(img, 0, 0, width, height);
+      resolve(c.toDataURL('image/jpeg', 0.85));
+    };
+    img.onerror = reject;
+    img.src = url;
+  });
+}
+
+/* ===================== 音效 ===================== */
+let audioCtx = null;
+function beep(freq = 880, dur = 0.08, type = 'sine') {
+  if (!state.sound) return;
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type = type; o.frequency.value = freq;
+    o.connect(g); g.connect(audioCtx.destination);
+    g.gain.setValueAtTime(0.07, audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+    o.start(); o.stop(audioCtx.currentTime + dur);
+  } catch (e) {}
+}
+function winSound() {
+  beep(660, 0.1); setTimeout(() => beep(880, 0.12), 90); setTimeout(() => beep(1100, 0.2), 200);
+}
+
+/* ===================== 主题 / 特效 ===================== */
+function applyTheme() {
+  document.documentElement.dataset.theme = state.theme;
+}
+function toggleTheme() {
+  state.theme = state.theme === 'dark' ? 'light' : 'dark';
+  applyTheme(); save();
+}
+
+const fx = {
+  canvas: null, ctx: null, particles: [], type: 'none', raf: null,
+  init() {
+    this.canvas = $('#fxCanvas');
+    this.ctx = this.canvas.getContext('2d');
+    this.resize();
+    window.addEventListener('resize', () => this.resize());
+    this.loop();
+  },
+  resize() {
+    const dpr = window.devicePixelRatio || 1;
+    this.canvas.width = innerWidth * dpr;
+    this.canvas.height = innerHeight * dpr;
+    this.canvas.style.width = innerWidth + 'px';
+    this.canvas.style.height = innerHeight + 'px';
+    this.ctx.scale(dpr, dpr);
+  },
+  setType(t) {
+    this.type = t;
+    this.particles = [];
+    if (t === 'none') return;
+    const count = t === 'rain' ? 120 : t === 'snow' ? 80 : 40;
+    for (let i = 0; i < count; i++) this.particles.push(this.spawn());
+  },
+  spawn() {
+    const w = innerWidth, h = innerHeight;
+    if (this.type === 'snow') {
+      return { x: Math.random() * w, y: Math.random() * -h, r: Math.random() * 2.5 + 1, vy: Math.random() * 0.6 + 0.3, vx: (Math.random() - 0.5) * 0.4, a: Math.random() * 0.6 + 0.3, phase: Math.random() * Math.PI * 2 };
+    }
+    if (this.type === 'rain') {
+      return { x: Math.random() * w, y: Math.random() * -h, len: Math.random() * 18 + 8, vy: Math.random() * 8 + 8, a: Math.random() * 0.3 + 0.15 };
+    }
+    // petals
+    return { x: Math.random() * w, y: Math.random() * -h, r: Math.random() * 4 + 3, vy: Math.random() * 0.9 + 0.4, vx: (Math.random() - 0.5) * 0.8, rot: Math.random() * Math.PI * 2, vr: (Math.random() - 0.5) * 0.04, a: Math.random() * 0.5 + 0.3, hue: Math.random() * 40 + 330 };
+  },
+  loop() {
+    if (!this.ctx) return;
+    const ctx = this.ctx, w = innerWidth, h = innerHeight;
+    ctx.clearRect(0, 0, w, h);
+    if (this.type !== 'none') {
+      for (const p of this.particles) {
+        if (this.type === 'snow') {
+          p.phase += 0.01;
+          p.x += Math.sin(p.phase) * 0.5 + p.vx;
+          p.y += p.vy;
+          if (p.y > h + 10) { p.y = -10; p.x = Math.random() * w; }
+          ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(255,255,255,${p.a})`; ctx.fill();
+        } else if (this.type === 'rain') {
+          p.y += p.vy; p.x += 1.5;
+          if (p.y > h + 20) { p.y = -20; p.x = Math.random() * w; }
+          ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x - 2, p.y + p.len);
+          ctx.strokeStyle = `rgba(180,200,255,${p.a})`; ctx.lineWidth = 1; ctx.stroke();
+        } else {
+          p.y += p.vy; p.x += Math.sin(p.y * 0.01) * 0.6 + p.vx; p.rot += p.vr;
+          if (p.y > h + 20) { p.y = -20; p.x = Math.random() * w; }
+          ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+          ctx.beginPath(); ctx.ellipse(0, 0, p.r, p.r * 0.6, 0, 0, Math.PI * 2);
+          ctx.fillStyle = `hsla(${p.hue},60%,80%,${p.a})`; ctx.fill(); ctx.restore();
+        }
+      }
+    }
+    this.raf = requestAnimationFrame(() => this.loop());
+  }
+};
+
+/* ===================== 渲染：角色卡 ===================== */
+function getFilteredCards() {
+  let list = [...state.cards];
+  const q = $('#searchInput').value.trim().toLowerCase();
+  const g = $('#groupFilter').value;
+  if (q) {
+    list = list.filter(c => {
+      if (c.name.toLowerCase().includes(q)) return true;
+      if ((c.note || '').toLowerCase().includes(q)) return true;
+      if ((c.tags || []).some(t => t.toLowerCase().includes(q))) return true;
+      return false;
+    });
+  }
+  if (g) list = list.filter(c => (c.group || '') === g);
+  const sort = $('#sortSelect').value;
+  if (sort === 'name') list.sort((a, b) => a.name.localeCompare(b.name, 'zh'));
+  else list.sort((a, b) => b.createdAt - a.createdAt);
+  return list;
+}
+
+function renderCards() {
+  const grid = $('#cardsGrid');
+  const list = getFilteredCards();
+  $('#emptyHint').hidden = list.length > 0;
+  grid.innerHTML = '';
+  for (const card of list) grid.appendChild(renderCardEl(card));
+  renderGroupFilter();
+}
+
+function renderGroupFilter() {
+  const sel = $('#groupFilter');
+  const cur = sel.value;
+  const groups = [...new Set(state.cards.map(c => c.group).filter(Boolean))];
+  sel.innerHTML = '<option value="">全部分组</option>' + groups.map(g => `<option value="${escapeHtml(g)}">${escapeHtml(g)}</option>`).join('');
+  sel.value = groups.includes(cur) ? cur : '';
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+}
+
+function renderCardEl(card) {
+  const wrap = document.createElement('div');
+  wrap.className = 'card';
+  wrap.dataset.id = card.id;
+  const avatarHtml = card.avatar
+    ? `<img src="${card.avatar}" alt="">`
+    : `<span>${escapeHtml(card.name.slice(0, 1))}</span>`;
+  wrap.innerHTML = `
+    <div class="card-head">
+      <div class="avatar">${avatarHtml}</div>
+      <div class="card-title">
+        <h3>${escapeHtml(card.name)}</h3>
+        <div class="meta">
+          ${card.group ? `<span class="tag">${escapeHtml(card.group)}</span>` : ''}
+          ${(card.tags || []).map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('')}
+          <span>${card.jsonls.length} 个 JSONL</span>
+        </div>
+      </div>
+      <div class="expand-arrow">▾</div>
+    </div>
+    <div class="card-body">
+      <div class="section-label">备注</div>
+      <textarea class="note-input card-note" placeholder="写点关于这张卡的备注…">${escapeHtml(card.note || '')}</textarea>
+      <div class="row">
+        <label class="tiny-btn">设置头像<input type="file" class="avatar-input" accept="image/*" hidden></label>
+        <button class="tiny-btn dl-json">下载原始 JSON</button>
+        <label class="tiny-btn">导入 JSONL<input type="file" class="jsonl-input" accept=".jsonl,.txt" hidden></label>
+        <button class="tiny-btn edit-meta">编辑分组/标签</button>
+        <button class="tiny-btn del-card" style="color:var(--danger)">删除卡</button>
+      </div>
+      <div class="jsonl-area"></div>
+    </div>
+  `;
+  // 展开/收起
+  wrap.querySelector('.card-head').addEventListener('click', () => {
+    wrap.classList.toggle('open');
+  });
+  // 备注输入（不重绘，直接存）
+  const noteEl = wrap.querySelector('.card-note');
+  noteEl.addEventListener('input', () => { card.note = noteEl.value; save(); });
+  // 头像
+  wrap.querySelector('.avatar-input').addEventListener('change', async e => {
+    const f = e.target.files[0]; if (!f) return;
+    card.avatar = await compressImage(f);
+    save(); renderCards();
+  });
+  // 下载 JSON
+  wrap.querySelector('.dl-json').addEventListener('click', () => {
+    const filename = card.name.replace(/[\\/:*?"<>|]/g, '_') + '.json';
+    download(card.rawJson, filename);
+  });
+  // 导入 JSONL
+  wrap.querySelector('.jsonl-input').addEventListener('change', async e => {
+    const f = e.target.files[0]; if (!f) return;
+    await importJsonl(card, f);
+    e.target.value = '';
+  });
+  // 编辑 meta
+  wrap.querySelector('.edit-meta').addEventListener('click', () => editCardMeta(card));
+  // 删除
+  wrap.querySelector('.del-card').addEventListener('click', () => {
+    if (confirm(`确定删除角色卡「${card.name}」？`)) {
+      state.cards = state.cards.filter(c => c.id !== card.id);
+      save(); renderCards();
+    }
+  });
+  // 渲染 JSONL
+  renderJsonlArea(wrap.querySelector('.jsonl-area'), card);
+  return wrap;
+}
+
+function renderJsonlArea(container, card) {
+  container.innerHTML = '';
+  if (card.jsonls.length === 0) return;
+  for (const jl of card.jsonls) {
+    const block = document.createElement('div');
+    block.className = 'jsonl-block';
+    block.innerHTML = `
+      <div class="jsonl-head">
+        <span>📄 ${escapeHtml(jl.filename)} · ${jl.records.length} 条记录</span>
+        <span>
+          <button class="tiny-btn dl-jl">下载原件</button>
+          <button class="tiny-btn del-jl" style="color:var(--danger)">删除</button>
+        </span>
+      </div>
+      <div class="records"></div>
+    `;
+    const recWrap = block.querySelector('.records');
+    jl.records.forEach((rec, i) => {
+      const row = document.createElement('div');
+      row.className = 'record';
+      let preview = rec.raw.trim().slice(0, 30);
+      row.innerHTML = `
+        <span class="record-idx">${i + 1}</span>
+        <span class="record-raw" title="${escapeHtml(rec.raw.slice(0, 200))}">${escapeHtml(preview)}</span>
+        <textarea class="note-input record-note" placeholder="这条记录的备注…">${escapeHtml(rec.note || '')}</textarea>
+      `;
+      const ta = row.querySelector('.record-note');
+      ta.addEventListener('input', () => { rec.note = ta.value; save(); });
+      recWrap.appendChild(row);
+    });
+    block.querySelector('.dl-jl').addEventListener('click', () => {
+      download(jl.rawText, jl.filename, 'application/jsonl');
+    });
+    block.querySelector('.del-jl').addEventListener('click', () => {
+      if (confirm('删除这个 JSONL 文件？')) {
+        card.jsonls = card.jsonls.filter(x => x.id !== jl.id);
+        save(); renderCards();
+      }
+    });
+    container.appendChild(block);
+  }
+}
+
+async function importJsonl(card, file) {
+  const text = await readFileAsText(file);
+  const lines = text.split(/\r?\n/).filter(l => l.trim());
+  const records = [];
+  let bad = 0;
+  lines.forEach(line => {
+    try { JSON.parse(line); records.push({ raw: line, note: '' }); }
+    catch { bad++; }
+  });
+  if (bad > 0) alert(`有 ${bad} 行不是合法 JSON，已跳过。`);
+  card.jsonls.push({ id: uid(), filename: file.name, rawText: text, records });
+  save(); renderCards();
+}
+
+function editCardMeta(card) {
+  openModal('编辑分组 / 标签', `
+    <input class="text-input" id="m-group" placeholder="分组名（如：某作品）" value="${escapeHtml(card.group || '')}">
+    <input class="text-input" id="m-tags" placeholder="标签，用逗号分隔" value="${escapeHtml((card.tags || []).join(','))}">
+    <div class="modal-actions">
+      <button class="ghost-btn" data-close>取消</button>
+      <button class="primary-btn" id="m-save">保存</button>
+    </div>
+  `, m => {
+    m.querySelector('#m-save').onclick = () => {
+      card.group = m.querySelector('#m-group').value.trim();
+      card.tags = m.querySelector('#m-tags').value.split(',').map(s => s.trim()).filter(Boolean);
+      save(); renderCards(); closeModal();
+    };
+  });
+}
+
+/* ===================== 导入角色卡 ===================== */
+async function importCardFile(file) {
+  const text = await readFileAsText(file);
+  let obj;
+  try { obj = JSON.parse(text); }
+  catch (e) { alert('JSON 格式错误：' + e.message); return; }
+  const name = obj.name || obj.char_name || obj.title || file.name.replace(/\.json$/i, '');
+  state.cards.push({
+    id: uid(), name, rawJson: text, avatar: '',
+    note: '', group: '', tags: [], createdAt: Date.now(), jsonls: []
+  });
+  save(); renderCards();
+}
+
+/* ===================== 转盘 ===================== */
+let wheelAngle = 0;
+let spinning = false;
+
+function getWheelItems() {
+  return state.cards
+    .filter(c => c.wheelOn !== false)
+    .filter(c => !(state.noRepeat && state.drawn.includes(c.id)));
+}
+function getWheelItemsAll() {
+  return state.cards;
+}
+
+function renderWheel() {
+  const listEl = $('#wheelList');
+  listEl.innerHTML = '';
+  if (state.cards.length === 0) {
+    listEl.innerHTML = '<div style="color:var(--text-2);font-size:12px;padding:10px">还没有角色卡</div>';
+  }
+  state.cards.forEach(c => {
+    const on = c.wheelOn !== false;
+    const drawn = state.drawn.includes(c.id);
+    const item = document.createElement('div');
+    item.className = 'wheel-item' + (on ? '' : ' off');
+    item.innerHTML = `
+      <input type="checkbox" ${on ? 'checked' : ''}>
+      <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHtml(c.name)}${drawn ? ' ✓' : ''}</span>
+      <input class="w-input" type="number" min="1" max="100" value="${c.weight || 1}" title="权重">
+    `;
+    item.querySelector('input[type=checkbox]').addEventListener('change', e => {
+      c.wheelOn = e.target.checked; save(); renderWheel(); drawWheel();
+    });
+    item.querySelector('.w-input').addEventListener('input', e => {
+      const v = Math.max(1, parseInt(e.target.value) || 1);
+      c.weight = v; save(); drawWheel();
+    });
+    listEl.appendChild(item);
+  });
+  drawWheel();
+}
+
+function drawWheel() {
+  const canvas = $('#wheelCanvas');
+  if (!canvas) return;
+  const size = canvas.clientWidth || 400;
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = size * dpr;
+  canvas.height = size * dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, size, size);
+  const cx = size / 2, cy = size / 2, r = size / 2 - 14;
+  const items = getWheelItems();
+  if (items.length === 0) {
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(255,255,255,0.06)'; ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.font = '14px sans-serif';
+    ctx.textAlign = 'center'; ctx.fillText('没有可抽取的角色', cx, cy);
+    return;
+  }
+  const total = items.reduce((s, i) => s + (i.weight || 1), 0);
+  let start = wheelAngle;
+  items.forEach((item, i) => {
+    const angle = ((item.weight || 1) / total) * Math.PI * 2;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.arc(cx, cy, r, start, start + angle);
+    ctx.closePath();
+    const shades = [0.16, 0.07, 0.12, 0.05, 0.14, 0.09];
+    ctx.fillStyle = `rgba(255,255,255,${shades[i % shades.length]})`;
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+    ctx.lineWidth = 1; ctx.stroke();
+    // 文字
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.rotate(start + angle / 2);
+    ctx.textAlign = 'right';
+    ctx.fillStyle = 'rgba(255,255,255,0.85)';
+    ctx.font = '13px -apple-system, sans-serif';
+    const label = item.name.length > 8 ? item.name.slice(0, 8) + '…' : item.name;
+    if (angle > 0.15) ctx.fillText(label, r - 18, 5);
+    ctx.restore();
+    start += angle;
+  });
+  // 中心
+  ctx.beginPath(); ctx.arc(cx, cy, 26, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(0,0,0,0.4)'; ctx.fill();
+  ctx.strokeStyle = 'rgba(255,255,255,0.3)'; ctx.stroke();
+}
+
+function spin() {
+  if (spinning) return;
+  const items = getWheelItems();
+  if (items.length === 0) return alert('没有可抽取的角色，请勾选参与抽取。');
+  spinning = true;
+  $('#wheelWrap').classList.add('spinning');
+  $('#wheelResult').innerHTML = '';
+  beep(220, 0.05, 'triangle');
+
+  const total = items.reduce((s, i) => s + (i.weight || 1), 0);
+  let rand = Math.random() * total, targetIdx = 0, acc = 0;
+  for (let i = 0; i < items.length; i++) {
+    acc += (items[i].weight || 1);
+    if (rand <= acc) { targetIdx = i; break; }
+  }
+  let offset = 0;
+  for (let i = 0; i < targetIdx; i++) offset += ((items[i].weight || 1) / total) * Math.PI * 2;
+  const sliceAngle = ((items[targetIdx].weight || 1) / total) * Math.PI * 2;
+  const centerOffset = offset + sliceAngle / 2;
+  // 指针在顶部 = -PI/2
+  const targetAngle = -Math.PI / 2 - centerOffset + Math.PI * 2 * 6;
+
+  const startAngle = wheelAngle;
+  const duration = 4200;
+  const t0 = performance.now();
+  let lastBeep = 0;
+
+  function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+
+  function frame(now) {
+    const t = Math.min(1, (now - t0) / duration);
+    wheelAngle = startAngle + (targetAngle - startAngle) * easeOutCubic(t);
+    drawWheel();
+    if (t < 1) {
+      if (now - lastBeep > (60 + t * 200)) { beep(1200, 0.02, 'square'); lastBeep = now; }
+      requestAnimationFrame(frame);
+    } else {
+      spinning = false;
+      $('#wheelWrap').classList.remove('spinning');
+      winSound();
+      const winner = items[targetIdx];
+      if (state.noRepeat) { state.drawn.push(winner.id); save(); }
+      showResult(winner);
+      renderWheel();
+    }
+  }
+  requestAnimationFrame(frame);
+}
+
+function showResult(card) {
+  const el = $('#wheelResult');
+  el.innerHTML = `
+    <div class="result-card">
+      <div class="avatar">${card.avatar ? `<img src="${card.avatar}">` : escapeHtml(card.name.slice(0,1))}</div>
+      <strong>${escapeHtml(card.name)}</strong>
+    </div>
+  `;
+  // 简易撒花
+  for (let i = 0; i < 30; i++) {
+    fx.particles.push({
+      x: innerWidth / 2 + (Math.random() - 0.5) * 100,
+      y: innerHeight / 2,
+      r: Math.random() * 3 + 2,
+      vy: Math.random() * -8 - 2,
+      vx: (Math.random() - 0.5) * 8,
+      rot: 0, vr: (Math.random() - 0.5) * 0.2,
+      a: 1, hue: Math.random() * 60 + 280, temp: true
+    });
+    // 临时粒子在 loop 里没有衰减逻辑，这里简化：3 秒后清掉临时粒子
+  }
+  setTimeout(() => { fx.particles = fx.particles.filter(p => !p.temp); }, 2500);
+}
+
+/* ===================== 小剧场 ===================== */
+function renderTheater() {
+  const el = $('#theaterList');
+  el.innerHTML = '';
+  if (state.theater.length === 0) {
+    el.innerHTML = '<div style="color:var(--text-2);font-size:13px">还没有小剧场，点上方按钮新建一个。</div>';
+    return;
+  }
+  state.theater.forEach(t => {
+    const div = document.createElement('div');
+    div.className = 'theater-item';
+    div.innerHTML = `
+      <h4>${escapeHtml(t.title)}</h4>
+      <div class="theater-body">${escapeHtml(t.content)}</div>
+      <div class="theater-actions">
+        <button class="tiny-btn t-copy">复制全文</button>
+        <button class="tiny-btn t-replace">查找替换</button>
+        <button class="tiny-btn t-edit">编辑</button>
+        <button class="tiny-btn t-del" style="color:var(--danger)">删除</button>
+      </div>
+    `;
+    div.querySelector('.t-copy').onclick = () => { navigator.clipboard.writeText(t.content); beep(880,0.05); };
+    div.querySelector('.t-replace').onclick = () => replaceTheater(t);
+    div.querySelector('.t-edit').onclick = () => editTheater(t);
+    div.querySelector('.t-del').onclick = () => {
+      if (confirm('删除这个小剧场？')) { state.theater = state.theater.filter(x => x.id !== t.id); save(); renderTheater(); }
+    };
+    el.appendChild(div);
+  });
+}
+
+function editTheater(t) {
+  const isNew = !t;
+  const data = t || { id: uid(), title: '', content: '' };
+  openModal(isNew ? '新建小剧场' : '编辑小剧场', `
+    <input class="text-input" id="t-title" placeholder="标题" value="${escapeHtml(data.title)}">
+    <textarea id="t-content" placeholder="正文…">${escapeHtml(data.content)}</textarea>
+    <div class="modal-actions">
+      <button class="ghost-btn" data-close>取消</button>
+      <button class="primary-btn" id="t-save">保存</button>
+    </div>
+  `, m => {
+    m.querySelector('#t-save').onclick = () => {
+      const title = m.querySelector('#t-title').value.trim();
+      const content = m.querySelector('#t-content').value;
+      if (!title || !content) return alert('标题和内容都要填');
+      if (isNew) state.theater.unshift({ id: uid(), title, content });
+      else { t.title = title; t.content = content; }
+      save(); renderTheater(); closeModal();
+    };
+  });
+}
+
+function replaceTheater(t) {
+  openModal('查找替换', `
+    <input class="text-input" id="r-find" placeholder="要查找的文字（如：char）">
+    <input class="text-input" id="r-replace" placeholder="替换为（如：人名）">
+    <button class="ghost-btn" id="r-run">生成预览</button>
+    <div id="r-preview-area"></div>
+    <div class="modal-actions">
+      <button class="ghost-btn" data-close>关闭</button>
+    </div>
+  `, m => {
+    m.querySelector('#r-run').onclick = () => {
+      const find = m.querySelector('#r-find').value;
+      const rep = m.querySelector('#r-replace').value;
+      if (!find) return alert('请输入要查找的文字');
+      const result = t.content.split(find).join(rep);
+      const area = m.querySelector('#r-preview-area');
+      area.innerHTML = `
+        <div class="section-label" style="margin-top:12px">预览（复制后即销毁，原文不变）</div>
+        <div class="preview-box" id="r-preview">${escapeHtml(result)}</div>
+        <button class="primary-btn" id="r-copy">复制预览内容</button>
+      `;
+      area.querySelector('#r-copy').onclick = () => {
+        navigator.clipboard.writeText(result).then(() => {
+          beep(880, 0.05);
+          area.innerHTML = '<div style="color:var(--text-2);font-size:13px;padding:10px 0">已复制，预览已销毁 ✓</div>';
+        });
+      };
+    };
+  });
+}
+
+/* ===================== 模态框 ===================== */
+function openModal(title, html, setup) {
+  closeModal();
+  const bg = document.createElement('div');
+  bg.className = 'modal-bg';
+  bg.innerHTML = `<div class="modal"><h3>${escapeHtml(title)}</h3>${html}</div>`;
+  bg.addEventListener('click', e => { if (e.target === bg) closeModal(); });
+  document.body.appendChild(bg);
+  bg.querySelectorAll('[data-close]').forEach(b => b.onclick = closeModal);
+  if (setup) setup(bg.querySelector('.modal'));
+}
+function closeModal() {
+  const m = $('.modal-bg'); if (m) m.remove();
+}
+
+/* ===================== 页面切换 / 事件 ===================== */
+function switchPage(name) {
+  $$('.nav button').forEach(b => b.classList.toggle('active', b.dataset.page === name));
+  $$('.page').forEach(p => p.classList.toggle('active', p.id === 'page-' + name));
+  if (name === 'wheel') { renderWheel(); setTimeout(drawWheel, 50); }
+  if (name === 'theater') renderTheater();
+}
+
+function bindEvents() {
+  $$('.nav button').forEach(b => b.onclick = () => switchPage(b.dataset.page));
+  $('#themeBtn').onclick = toggleTheme;
+  $('#fxSelect').onchange = e => { state.fx = e.target.value; save(); fx.setType(state.fx); };
+  $('#searchInput').oninput = renderCards;
+  $('#groupFilter').onchange = renderCards;
+  $('#sortSelect').onchange = renderCards;
+  $('#importJson').onchange = async e => {
+    for (const f of e.target.files) await importCardFile(f);
+    e.target.value = '';
+  };
+  $('#newCardBtn').onclick = () => {
+    const name = prompt('角色名：');
+    if (!name) return;
+    const raw = JSON.stringify({ name, note: '' }, null, 2);
+    state.cards.push({ id: uid(), name, rawJson: raw, avatar: '', note: '', group: '', tags: [], createdAt: Date.now(), jsonls: [] });
+    save(); renderCards();
+  };
+  $('#noRepeatToggle').onchange = e => { state.noRepeat = e.target.checked; save(); renderWheel(); };
+  $('#soundToggle').onchange = e => { state.sound = e.target.checked; save(); };
+  $('#resetDrawn').onclick = () => { state.drawn = []; save(); renderWheel(); };
+  $('#spinBtn').onclick = spin;
+  $('#newTheaterBtn').onclick = () => editTheater(null);
+  $('#exportAll').onclick = () => {
+    download(JSON.stringify(state, null, 2), 'cardvault-backup-' + Date.now() + '.json');
+  };
+  $('#importAll').onchange = async e => {
+    const f = e.target.files[0]; if (!f) return;
+    try {
+      const data = JSON.parse(await readFileAsText(f));
+      if (confirm('导入备份将覆盖当前数据，继续？')) {
+        state = { ...state, ...data };
+        await IDB.set('state', state);
+        applyTheme(); renderAll(); fx.setType(state.fx || 'none');
+        alert('已导入');
+      }
+    } catch (err) { alert('备份文件损坏：' + err.message); }
+    e.target.value = '';
+  };
+  $('#clearAll').onclick = () => {
+    if (!confirm('确定清空所有数据？不可恢复。')) return;
+    state = { cards: [], theater: [], theme: state.theme, fx: state.fx, noRepeat: false, sound: true, drawn: [] };
+    save(); renderAll();
+  };
+  window.addEventListener('resize', () => { if ($('#page-wheel').classList.contains('active')) drawWheel(); });
+}
+
+function renderAll() {
+  renderCards(); renderWheel(); renderTheater();
+}
+
+/* ===================== 启动 ===================== */
+async function init() {
+  await IDB.open();
+  const saved = await IDB.get('state');
+  if (saved) state = { ...state, ...saved };
+  applyTheme();
+  $('#fxSelect').value = state.fx || 'none';
+  $('#noRepeatToggle').checked = !!state.noRepeat;
+  $('#soundToggle').checked = state.sound !== false;
+  renderAll();
+  bindEvents();
+  fx.init();
+  fx.setType(state.fx || 'none');
+}
+init();
+</script>
+</body>
+  </html>

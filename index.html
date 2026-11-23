@@ -15,7 +15,7 @@
   
   /* 纯黑 */
   --bg-base: #000000;
-  --bg-solid: rgba(18, 18, 20, 0.85); /* 降低透明度，透出背景 */
+  --bg-solid: rgba(18, 18, 20, 0.85);
   --glass-border: rgba(255, 255, 255, 0.1);
   --glass-highlight: rgba(255, 255, 255, 0.05);
   --text-main: #ffffff;
@@ -27,7 +27,7 @@
   --group-text: #ffffff;
   --wheel-1: rgba(255,255,255,0.15); --wheel-2: rgba(255,255,255,0.05); --wheel-3: rgba(255,255,255,0.1); --wheel-4: rgba(255,255,255,0.02);
   --wheel-text: #fff;
-  --overlay-bg: rgba(0, 0, 0, 0.1); /* 遮罩变得极淡 */
+  --overlay-bg: rgba(0, 0, 0, 0.1);
 }
 [data-theme="light"] {
   /* 纯白 */
@@ -116,7 +116,7 @@ body {
 }
 #bg-overlay {
   position: fixed; inset: 0; z-index: -1;
-  backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); /* 极轻的模糊 */
+  backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
   background: var(--overlay-bg);
   opacity: 0; transition: opacity 0.5s;
 }
@@ -231,9 +231,6 @@ main {
 .meta-tags::-webkit-scrollbar { display: none; }
 .meta-tag { background: var(--glass-highlight); padding: 2px 6px; border-radius: 4px; white-space: nowrap; }
 .meta-tag::before { content: "#"; opacity: 0.5; margin-right: 1px; }
-
-.arrow { color: var(--text-muted); transition: 0.3s; font-size: 10px; flex-shrink: 0; }
-.card.open .arrow { transform: rotate(180deg); }
 
 .card-body { display: none; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--glass-border); }
 .card.open .card-body { display: block; animation: fadeIn 0.3s; }
@@ -357,6 +354,13 @@ input:checked + .slider:before { transform: translateX(18px); background: var(--
 .q-tag { padding: 6px 10px; border-radius: 6px; background: var(--glass-highlight); border: 1px solid var(--glass-border); font-size: 12px; cursor: pointer; user-select: none; }
 .q-tag:active { background: var(--text-sub); color: var(--bg-base); }
 
+/* 新增：包含角色输入框 */
+.related-input {
+  width: 100%; padding: 8px 10px; border-radius: 8px;
+  background: var(--glass-highlight); border: 1px solid var(--glass-border);
+  color: var(--text-main); font-size: 12px; outline: none; margin-top: 4px;
+}
+
 .empty { text-align: center; color: var(--text-sub); padding: 40px 20px; font-size: 13px; }
 </style>
 </head>
@@ -381,7 +385,7 @@ input:checked + .slider:before { transform: translateX(18px); background: var(--
 <main>
   <section id="page-cards" class="page active">
     <div class="toolbar">
-      <input id="searchInput" class="search-box" placeholder="搜索角色 / 标签 / 备注">
+      <input id="searchInput" class="search-box" placeholder="搜索卡名 / 标签 / 备注 / 包含角色">
       <div class="filter-row">
         <select id="groupFilter"><option value="">全部分组</option></select>
         <select id="sortSelect">
@@ -634,7 +638,14 @@ function getCards() {
   let l = [...state.cards];
   const q = $('#searchInput').value.trim().toLowerCase();
   const g = $('#groupFilter').value;
-  if(q) l = l.filter(c => c.name.toLowerCase().includes(q) || (c.note||'').toLowerCase().includes(q) || (c.tags||[]).some(t=>t.toLowerCase().includes(q)));
+  if(q) {
+    l = l.filter(c => 
+      c.name.toLowerCase().includes(q) || 
+      (c.note||'').toLowerCase().includes(q) || 
+      (c.tags||[]).some(t=>t.toLowerCase().includes(q)) ||
+      (c.related||[]).some(r=>r.toLowerCase().includes(q))
+    );
+  }
   if(g) l = l.filter(c => (c.group||'') === g);
   
   const sortMode = $('#sortSelect').value;
@@ -675,7 +686,6 @@ function renderCard(card) {
           ${(!card.group && !(card.tags||[]).length) ? jlCount : ''}
         </div>
       </div>
-      <div class="arrow">▼</div>
     </div>
     <div class="card-body">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
@@ -687,7 +697,11 @@ function renderCard(card) {
         </div>
       </div>
       <textarea class="note-input card-note" placeholder="写点备注…">${esc(card.note||'')}</textarea>
-      <div class="card-actions">
+      
+      <div class="section-label" style="margin-top:10px">包含角色 (用逗号分隔)</div>
+      <input type="text" class="related-input related-field" placeholder="如：张三, 李四" value="${esc((card.related||[]).join(', '))}">
+
+      <div class="card-actions" style="margin-top:12px;">
         <label>换头像<input type="file" class="av-input" accept="image/*" hidden></label>
         <button class="dl-json">下载 JSON</button>
         <label>导入 JSONL<input type="file" class="jl-input" accept=".jsonl,.txt" hidden></label>
@@ -698,9 +712,20 @@ function renderCard(card) {
       <div class="jl-area"></div>
     </div>
   `;
+  
+  // 无箭头，依然可以点击头部展开
   el.querySelector('.card-head').onclick = () => el.classList.toggle('open');
+  
   const ta = el.querySelector('.card-note');
   ta.oninput = () => { card.note = ta.value; save(); };
+  
+  // 包含角色输入绑定
+  const relatedInput = el.querySelector('.related-field');
+  relatedInput.oninput = () => {
+    card.related = relatedInput.value.split(',').map(s=>s.trim()).filter(Boolean);
+    save();
+  };
+
   el.querySelector('.av-input').onchange = async e => { const f = e.target.files[0]; if(!f) return; card.avatar = await compressImg(f); save(); renderCards(); };
   el.querySelector('.dl-json').onclick = () => download(card.rawJson, card.name.replace(/[\\/:*?"<>|]/g,'_')+'.json');
   el.querySelector('.jl-input').onchange = async e => { const f = e.target.files[0]; if(!f) return; await importJL(card, f); e.target.value=''; };
@@ -791,13 +816,13 @@ $('#importJson').onchange = async e => {
     const txt = await readFile(f); let obj;
     try { obj = JSON.parse(txt); } catch (err) { alert(f.name+' 解析失败'); continue; }
     const name = obj.name || obj.char_name || obj.title || f.name.replace(/\.json$/i,'');
-    state.cards.push({ id: uid(), name, rawJson: txt, avatar: '', note: '', group: '', tags: [], createdAt: Date.now(), jsonls: [] });
+    state.cards.push({ id: uid(), name, rawJson: txt, avatar: '', note: '', group: '', tags: [], related: [], createdAt: Date.now(), jsonls: [] });
   }
   save(); renderCards(); e.target.value = '';
 };
 $('#newCardBtn').onclick = () => {
   const name = prompt('角色名:'); if(!name) return;
-  state.cards.push({ id: uid(), name, rawJson: JSON.stringify({name}, null, 2), avatar: '', note: '', group: '', tags: [], createdAt: Date.now(), jsonls: [] });
+  state.cards.push({ id: uid(), name, rawJson: JSON.stringify({name}, null, 2), avatar: '', note: '', group: '', tags: [], related: [], createdAt: Date.now(), jsonls: [] });
   save(); renderCards();
 };
 $('#searchInput').oninput = renderCards;
